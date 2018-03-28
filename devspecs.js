@@ -8,13 +8,13 @@ const screen = {
 var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable']).run(($rootScope, screens) => {
   $rootScope.screens = screens;
   $rootScope.activeScreen = () => {
-    return _(screens).find({
+    return _($rootScope.screens).find({
       active: true
     });
   };
 
   $rootScope.selectedScreen = () => {
-    return screens.some(s => s.active);
+    return $rootScope.screens.some(s => s.active);
   };
 
   $rootScope.getVisibleContent = (screen) => {
@@ -29,12 +29,14 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable']).run(($ro
   };
 
   $rootScope.inputJSON = function(input){
-    screens = $.parseJSON(input);
+    $rootScope.screens = $.parseJSON(input);
   };
 
   $rootScope.hideModal = function(id){
     $(id).modal('hide');
   };
+
+  $('#app-holder').show();
 });
 
 app.filter('capitalize', function() {
@@ -43,15 +45,48 @@ app.filter('capitalize', function() {
     }
 });
 
-app.directive('myDraggable', function() {
+app.directive('myDraggable', function($rootScope, $window) {
   return {
     restrict: 'A',
     link: function(scope, elm, attrs) {
       elm.draggable({
+        containment: "parent",
         stop: function(e, ui){
-          scope.item.x = ui.position.left;
-          scope.item.y = ui.position.top;
-        }
+          scope.item.x = ~~(ui.position.left / scope.widthRatio());
+          scope.item.y = ~~(ui.position.top / scope.heightRatio());
+          $rootScope.$digest();
+        },
+      });
+
+      elm.resizable({
+        containment: "parent",
+        stop: function(e, ui) {
+          scope.item.width = ~~(ui.size.width / scope.widthRatio());
+          scope.item.height = ~~(ui.size.height / scope.heightRatio());
+          $rootScope.$digest();
+        },
+      });
+
+      scope.heightRatio = function() {
+        const bounds = document.getElementById('place-canvas').getBoundingClientRect();
+        return ( bounds.height / screen.height)
+      }
+
+      scope.widthRatio = function() {
+        const bounds = document.getElementById('place-canvas').getBoundingClientRect();
+        return ( bounds.width / screen.width)
+      }
+
+      scope.getTop = function(){
+        return scope.item.y * scope.heightRatio();
+      }
+
+      scope.getLeft = function(){
+        return scope.item.x * scope.widthRatio();
+      }
+
+      angular.element($window).bind('resize', function(){
+        scope.$digest();
       });
     }
   };
@@ -232,7 +267,7 @@ app.controller('actions', function($scope){
   const ctrl = this;
   ctrl.type = 'action';
 
-  const newSetting = () => {
+  const newAction = () => {
     return {
       title: '',
       type: 'action',
@@ -242,7 +277,7 @@ app.controller('actions', function($scope){
   }
 
   $scope.$on('new-action', () => {
-    ctrl.current = newSetting();
+    ctrl.current = newAction();
   });
 
   $scope.$on('load-action', (s, content) => {
@@ -256,7 +291,7 @@ app.controller('text', function($scope){
   const ctrl = this;
   ctrl.type = 'text';
 
-  const newSetting = () => {
+  const newText = () => {
     return {
       title: '',
       type: 'text',
@@ -266,7 +301,7 @@ app.controller('text', function($scope){
   }
 
   $scope.$on('new-text', () => {
-    ctrl.current = newSetting();
+    ctrl.current = newText();
   });
 
   $scope.$on('load-text', (s, content) => {
@@ -280,7 +315,7 @@ app.controller('assets', function($scope){
   const ctrl = this;
   ctrl.type = 'asset';
 
-  const newSetting = () => {
+  const newAsset = () => {
     return {
       title: '',
       type: 'asset',
@@ -290,7 +325,7 @@ app.controller('assets', function($scope){
   }
 
   $scope.$on('new-asset', () => {
-    ctrl.current = newSetting();
+    ctrl.current = newAsset();
   });
 
   $scope.$on('load-asset', (s, content) => {
@@ -304,7 +339,7 @@ app.controller('widgets', function($scope){
   const ctrl = this;
   ctrl.type = 'widget';
 
-  const newSetting = () => {
+  const newWidget = () => {
     return {
       title: '',
       type: 'widget',
@@ -314,11 +349,35 @@ app.controller('widgets', function($scope){
   }
 
   $scope.$on('new-widget', () => {
-    ctrl.current = newSetting();
+    ctrl.current = newWidget();
   });
 
   $scope.$on('load-widget', (s, content) => {
     $('#mod-widget').modal('show');
+    content.new = false;
+    ctrl.current = content;
+  });
+});
+
+app.controller('containers', function($scope){
+  const ctrl = this;
+  ctrl.type = 'container';
+
+  const newContainer = () => {
+    return {
+      title: '',
+      type: 'container',
+      new: true,
+      visible: true,
+    }
+  }
+
+  $scope.$on('new-container', () => {
+    ctrl.current = newContainer();
+  });
+
+  $scope.$on('load-container', (s, content) => {
+    $('#mod-container').modal('show');
     content.new = false;
     ctrl.current = content;
   });
