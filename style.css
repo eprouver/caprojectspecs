@@ -1,0 +1,57 @@
+body{
+  background-color: rgb(52, 58, 64) !important;
+}
+
+.t-card {
+  max-width: 100%;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.t-card.active{
+  box-shadow: 0 0 0 5px #ffc107;
+}
+
+.action-buttons .fa {
+  font-size: 3vw;
+}
+
+.full-height {
+  min-height: 90vh;
+}
+
+.full-height > [class*="col-"]{
+  min-height: 90vh;
+}
+
+.drop-here .drop-area {
+  height: 50px;
+}
+
+.nav-tabs .nav-link:not(.active):hover {
+    border-color: #ccc;
+    background: #ccc;
+    opacity: 0.5;
+}
+
+.screen-size{
+  width: 100%;
+}
+
+div.screen-size{
+	position: relative;
+	width: 100%;		/* desired width */
+}
+div.screen-size:after{
+	content: "";
+	display: block;
+	padding-top: 74.96%; 	/* initial ratio of 1:1*/
+}
+
+.draggable {
+  position:absolute;
+}
+
+.font-xs {
+  font-size: 8px;
+}

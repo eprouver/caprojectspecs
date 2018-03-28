@@ -1,0 +1,459 @@
+<html>
+
+<head>
+  <link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+  <link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+  <link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div ng-app="app">
+    <div class="container-fluid">
+      <div ng-controller="screens">
+        <div class="float-right">
+          <button class="btn btn-secondary btn-sm mt-1" onclick="$('#mod-upload').modal('show')">
+            <i class="fa fa-download"></i>
+          </button>
+        </div>
+        <h3 class="text-light">States</h3>
+        <div class="row" ui-sortable="{distance: 5}" ng-model="screens">
+          <div class="col-2 animated fadeIn" ng-repeat="(i,a) in screens">
+            <button class="btn btn-success btn-sm pull-right" ng-click="copyScreen(a)">
+              <i class="fa fa-copy"></i>
+            </button>
+            <span class="text-light">{{a.content.title}}</span>
+            <canvas class="test-canvas t-card my-2" ng-class="a.active ? 'active': ''" ng-click="selectScreen(a)"></canvas>
+            <button class="btn btn-danger btn-sm pull-right" ng-click="removeScreen(i)">
+              <i class="fa fa-close"></i>
+            </button>
+          </div>
+          <div class="col-1">
+            <button class="btn btn-success btn-block" title="Add Screen" ng-click="addScreen()">
+              <i class="fa fa-plus fa-2x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <br/>
+      <div ng-show="activeScreen()" class="animated slideInLeft">
+        <div class="row">
+          <div class="col-1 text-center">
+            &nbsp;
+          </div>
+          <div class="col-8 text-center">
+            <input class="form-control m-2 text-center bg-secondary text-light" type="text" ng-model="activeScreen().content.title" placeholder="Name" />
+          </div>
+          <div class="col-3 text-center">
+            &nbsp;
+          </div>
+        </div>
+
+        <div class="row full-height">
+          <div class="col-1 action-buttons">
+            <!--     Not Container Items     -->
+            <button class="btn btn-secondary btn-block" title="Workspaces" data-toggle="modal" data-target="#mod-workspace">
+              <i class="fa fa-window-maximize"></i>
+            </button>
+            <button class="btn btn-secondary btn-block" title="Settings" data-toggle="modal" data-target="#mod-setting" ng-click="$root.$broadcast('new-setting')">
+              <i class="fa fa-cogs"></i>
+            </button>
+            <button class="btn btn-secondary btn-block" title="Sounds" data-toggle="modal" data-target="#mod-sound" ng-click="$root.$broadcast('new-sound')">
+              <i class="fa fa-volume-up"></i>
+            </button>
+            <button class="btn btn-secondary btn-block" title="Actions" data-toggle="modal" data-target="#mod-action" ng-click="$root.$broadcast('new-action')">
+              <i class="fa fa-hand-pointer-o"></i>
+            </button>
+            <!--    Container Items      -->
+            <hr/>
+            <button class="btn btn-primary btn-block" title="Text" data-toggle="modal" data-target="#mod-text" ng-click="$root.$broadcast('new-text')">
+              <i class="fa fa-font"></i>
+            </button>
+            <button class="btn btn-primary btn-block" title="Assets" data-toggle="modal" data-target="#mod-asset" ng-click="$root.$broadcast('new-asset')">
+              <i class="fa fa-picture-o"></i>
+            </button>
+            <button class="btn btn-primary btn-block" title="Widgets" data-toggle="modal" data-target="#mod-widget" ng-click="$root.$broadcast('new-widget')">
+              <i class="fa fa-puzzle-piece"></i>
+            </button>
+            <!-- <button class="btn btn-primary btn-block" title="Containers" data-toggle="modal" data-target="#mod-container">
+              <i class="fa fa-square-o"></i>
+            </button> -->
+          </div>
+          <div class="col-8">
+            <br/>
+            <ul class="nav nav-justified nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="place-tab" data-toggle="tab" href="#place" role="tab" aria-controls="place" aria-selected="true">Place</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="render-tab" data-toggle="tab" href="#render" role="tab" aria-controls="render" aria-selected="false">Render</a>
+              </li>
+            </ul>
+            <div class="tab-content bg-white" id="myTabContent">
+              <div class="tab-pane fade show active" id="place" role="tabpanel" aria-labelledby="place-tab">
+                <div id="place-canvas" class="screen-size">
+                  <div my-draggable class="draggable" ng-repeat="item in getVisibleContent(activeScreen())" ng-style="{top: item.y, left: item.x}">
+                    <div ng-switch="item.type">
+                      <div ng-switch-when="text">
+                        Text
+                      </div>
+                      <div ng-switch-default>
+                        Boxed Thing
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="render" role="tabpanel" aria-labelledby="render-tab">
+                <canvas id="render-canvas" class="screen-size" width="1250" height="937">
+                </canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-3" ng-controller="content as contentCtrl">
+            <tg-dynamic-directive ng-model="activeScreen().content" tg-dynamic-directive-view="contentCtrl.getView">
+            </tg-dynamic-directive>
+            <div style="clear: both;"></div>
+          </div>
+
+          <br/><br/>
+        </div>
+      </div>
+
+      <div id="output">
+
+      </div>
+
+      <div id="modals" ng-controller="content">
+        <div id="mod-workspace" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Select Workspace</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <select name="mySelect" id="mySelect" class="form-control" ng-options="option.name for option in data.availableOptions track by option.id" ng-model="data.selectedOption">
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" ng-click="replaceContent(activeScreen(), {type: 'workspace', id: 'workspace', visible: false})" onclick="$('#mod-workspace').modal('hide')">Set Workspace</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--  Add Text  -->
+        <div id="mod-text" class="modal" tabindex="-1" role="dialog" ng-controller="text as ctrl">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Text</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Title:</label>
+                  <input type="text" class="form-control" placeholder="Variable Name" ng-model="ctrl.current.title"/>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Position X:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.x"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Position Y:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.y"/>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Font:</label>
+                      <input type="text" class="form-control" ng-model="ctrl.current.font"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Size:</label>
+                      <input type="text" class="form-control" ng-model="ctrl.current.size"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Color:</label>
+                      <input type="text" class="form-control" ng-model="ctrl.current.color"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <ng-include src="'modal-actions'"></ng-include>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Add Asset -->
+        <div id="mod-asset" class="modal" tabindex="-1" role="dialog" ng-controller="assets as ctrl">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Assets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Title:</label>
+                  <input type="text" class="form-control" placeholder="Variable Name" ng-model="ctrl.current.title"/>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Position X:</label>
+                      <input type="number" class="form-control"ng-model="ctrl.current.x" />
+                    </div>
+                    <div class="form-group">
+                      <label>Position Y:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.y"/>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Width:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.width"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Height:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.height"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <ng-include src="'modal-actions'"></ng-include>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Add Sound -->
+        <div id="mod-sound" class="modal" tabindex="-1" role="dialog" ng-controller="sounds as ctrl">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Sounds</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="sound-title">Title</label>
+                  <input type="text" class="form-control" id="sound-title" placeholder="The Variable Name In Code" ng-model="ctrl.current.title">
+                </div>
+                <div class="form-group">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="authoring-audio" id="authoring-audio" ng-model="ctrl.current.source" value="authoring-audio" checked>
+                    <label class="form-check-label" for="authoring-audio">
+                      Authoring Audio
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="style-audio" id="style-audio" ng-model="ctrl.current.source" value="style-audio">
+                    <label class="form-check-label" for="style-audio">
+                      Style Audio
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="sound-notes">Notes</label>
+                  <textarea class="form-control" id="sound-notes" placeholder="Notes" ng-model="ctrl.current.notes">
+                  </textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <ng-include src="'modal-actions'"></ng-include>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Add Action -->
+        <div id="mod-action" class="modal" tabindex="-1" role="dialog" ng-controller="actions as ctrl">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Actions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="action-title">Title</label>
+                  <input type="text" class="form-control" id="action-title" placeholder="The Variable Name In Code" ng-model="ctrl.current.title">
+                </div>
+                <div class="form-group">
+                  <label for="action-notes">Notes</label>
+                  <textarea class="form-control" id="action-notes" placeholder="Notes" ng-model="ctrl.current.notes">
+                  </textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <ng-include src="'modal-actions'"></ng-include>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Add Asset -->
+        <div id="mod-widget" class="modal" tabindex="-1" role="dialog" ng-controller="widgets as ctrl">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Widgets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Title:</label>
+                  <input type="text" class="form-control" placeholder="Variable Name" ng-model="ctrl.current.title"/>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Position X:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.x"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Position Y:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.y"/>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label>Width:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.width"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Height:</label>
+                      <input type="number" class="form-control" ng-model="ctrl.current.height"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <ng-include src="'modal-actions'"></ng-include>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="mod-setting" class="modal" tabindex="-1" role="dialog" ng-controller="settings as settingsCtrl">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Settings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="setting-title">Title</label>
+                  <input type="text" class="form-control" id="setting-title" placeholder="The Variable Name In Code" ng-model="settingsCtrl.current.title">
+                </div>
+                <div class="form-group">
+                  <label for="setting-notes">Notes</label>
+                  <textarea class="form-control" id="setting-notes" placeholder="Notes" ng-model="settingsCtrl.current.notes">
+                  </textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" ng-show="settingsCtrl.current.new" ng-click="addContent(activeScreen(), settingsCtrl.current)" onclick="$('#mod-setting').modal('hide')">Save Setting</button>
+                <button type="button" class="btn btn-success" ng-hide="settingsCtrl.current.new" onclick="$('#mod-setting').modal('hide')">Edit Setting</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="mod-upload" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Current Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p class="font-xs" ng-bind="screens | json"></p>
+                <h3>Input</h3>
+                <textarea class="form-control" ng-model="jsonInput"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" ng-click="inputJSON(jsonInput)" onclick="$('#mod-upload').modal('hide')">Upload Data</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/ng-template" id="modal-actions">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      <button type="button" class="btn btn-success" ng-show="ctrl.current.new" ng-click="addContent(activeScreen(), ctrl.current); hideModal('#mod-' + ctrl.type)">Save {{ctrl.type | capitalize}}</button>
+      <button type="button" class="btn btn-success" ng-hide="ctrl.current.new" ng-click="hideModal('#mod-' + ctrl.type)">Edit {{ctrl.type | capitalize }}</button>
+    </script>
+
+    <script type="text/ng-template" id="nestable_item.html">
+      <div ng-controller="content as contentCtrl">
+        <div class="apps-container" ui-sortable="sortableOptions" ng-model="ngModelItem.items">
+          <br ng-show="ngModelItem.visible" />
+          <div ng-class="{'border border-primary py-2 m-1': item.visible}" class="px-2" ng-repeat="item in ngModelItem.items">
+
+            <div class="p-1 mb-2 text-light" ng-click="contentCtrl.setActive(item)" ng-class="item.active ? 'bg-warning': 'bg-secondary'">
+              <div class="row" ng-controller="content">
+                <div class="col-3 text-left" ng-switch="item.type">
+                  <button class="btn btn-dark btn-sm" ng-click="$root.$broadcast('load-'+item.type, item)" title="Edit Content">
+                    <i ng-switch-when="workspace" class="fa fa-window-maximize"></i>
+                    <i ng-switch-when="text" class="fa fa-font"></i>
+                    <i ng-switch-when="asset" class="fa fa-picture-o"></i>
+                    <i ng-switch-when="sound" class="fa fa-volume-up"></i>
+                    <i ng-switch-when="widget" class="fa fa-puzzle-piece"></i>
+                    <i ng-switch-when="setting" class="fa fa-cogs"></i>
+                    <i ng-switch-when="container" class="fa fa-square-o"></i>
+                    <i ng-switch-when="action" class="fa fa-hand-pointer-o"></i>
+                  </button>
+                </div>
+                <div class="col-6 text-center">
+                  {{item.title}}
+                </div>
+                <div class="col-3 text-right">
+                  <button class="btn btn-danger btn-sm" ng-click="removeContent(ngModelItem.items, item)">
+                    <i class="fa fa-close"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <tg-dynamic-directive ng-model="item" tg-dynamic-directive-view="contentCtrl.getView">
+            </tg-dynamic-directive>
+          </div>
+        </div>
+      </div>
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-sortable/0.19.0/sortable.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js'></script>
+    <script src='https://rawgithub.com/thgreasi/tg-dynamic-directive/master/src/tg.dynamic.directive.js'></script>
+    <script src='devspecs.js'></script>
+</body>
+
+</html>
