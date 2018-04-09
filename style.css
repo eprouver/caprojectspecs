@@ -12,8 +12,31 @@ body{
   box-shadow: 0 0 0 5px #ffc107;
 }
 
+.action-buttons button:after {
+    content:attr(title);
+    display:block;
+    margin-top: 2px;
+    font-size: 10px;
+    left:0;
+    top:0;
+    color:white;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .action-buttons .fa {
   font-size: 3vw;
+}
+
+@media screen and (max-width: 1050px) {
+    .action-buttons .fa {
+        font-size: 1.5vw;
+    }
+
+    .action-buttons button:after {
+        display:none;
+    }
 }
 
 .full-height {
@@ -34,15 +57,15 @@ body{
     opacity: 0.5;
 }
 
-.screen-size{
+.state-size{
   width: 100%;
 }
 
-div.screen-size{
+div.state-size{
 	position: relative;
 	width: 100%;		/* desired width */
 }
-div.screen-size:after{
+div.state-size:after{
 	content: "";
 	display: block;
 	padding-top: 74.96%; 	/* initial ratio of 1:1*/
@@ -62,4 +85,23 @@ div.screen-size:after{
 
 .font-xs {
   font-size: 8px;
+}
+
+.line-correct{
+  line-height:1.5em;
+}
+
+.ellip {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.my-dragging {
+  opacity: 0.5;
+}
+
+#output-files .card {
+  margin-bottom: 5px;
 }
