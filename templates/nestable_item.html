@@ -1,0 +1,24 @@
+<div ng-controller="content as contentCtrl">
+  <div class="apps-container" ui-sortable="sortableOptions" ng-model="ngModelItem.items">
+    <br ng-show="ngModelItem.canHaveChildren" />
+    <div ng-class="{'border py-1 m-2': item.canHaveChildren, 'border-warning': item.canHaveChildren && item.active, 'border-primary': item.canHaveChildren && !item.active}" class="px-1" ng-repeat="item in ngModelItem.items">
+
+      <div class="p-1 mb-2 text-light" ng-click="contentCtrl.setActive(item)" ng-style="item.visualElement ? {borderBottom: '3px solid' + item.demoColor} : {}" ng-class="item.active ? 'bg-warning': ( item.visualElement ? 'bg-primary': 'bg-secondary')">
+        <div ng-controller="content" class="d-flex justify-content-between">
+          <div class="badge badge-dark">
+            <i ng-class="typeToIcon[item.type]" class="fa-2x"></i>
+          </div>
+          <button class="btn btn-link btn-sm text-light ellips" title="Edit {{item.type | capitalize}}" ng-click="$root.$broadcast('load-'+item.type, item)">{{item.title}}</button>
+
+          <button class="btn btn-danger btn-sm" ng-click="removeContent(ngModelItem.items, item)">
+            <i class="fa fa-close"></i>
+          </button>
+        </div>
+      </div>
+
+      <tg-dynamic-directive ng-model="item" tg-dynamic-directive-view="contentCtrl.getView">
+      </tg-dynamic-directive>
+    </div>
+    <br ng-show="ngModelItem.canHaveChildren" />
+  </div>
+</div>

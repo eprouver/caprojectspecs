@@ -5,7 +5,8 @@
   <link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
   <link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
   <link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/colorpicker.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -39,7 +40,7 @@
         </div>
         <div class="nav-item">
           <button class="btn btn-secondary btn-block" onclick="$('#mod-upload').modal('show')">
-            Raw Data
+            Paste Data
           </button>
         </div>
       </div>
@@ -52,7 +53,52 @@
                 <h4>Info</h4>
                 <div class="form-group">
                   <label>Renderer Name:</label>
-                  <input type="text" class="form-control" placeholder="Renderer Name" />
+                  <input type="text" class="form-control" placeholder="Renderer Name" ng-model="$root.specData.name" />
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Origin Offset X:</label>
+                      <input type="text" class="form-control" placeholder="Origin Offset X" ng-model="$root.specData.originOffsetX" />
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Origin Offset Y:</label>
+                      <input type="text" class="form-control" placeholder="Origin Offset Y" ng-model="$root.specData.originOffsetY" />
+                    </div>
+                  </div>
+                </div>
+                <label>Renderer Tech</label>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="instruction" id="in-canvas" ng-model="$root.specData.renderer" value="canvas">
+                        <label class="form-check-label" for="in-canvas">
+                          Canvas
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="practice" id="in-html" ng-model="$root.specData.renderer" value="html">
+                        <label class="form-check-label" for="in-html">
+                          HTML
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Prefix:</label>
+                  <input type="text" class="form-control" placeholder="ex. tpp-t1" ng-model="$root.specData.prefix" />
+                </div>
+                <div class="form-group">
+                  <label>Code:</label>
+                  <input type="text" class="form-control" placeholder="ex. tpp-t1-s1" ng-model="$root.specData.code" />
                 </div>
                 <div class="form-group">
                   <label>Confluence Link:</label>
@@ -97,173 +143,110 @@
           <br/>
           <br/>
         </div>
-        <div id="output-files" class="menu-item" ng-controller="outputFiles as ctrl">
-          <h1 class="text-light">Output Files</h1>
-
-          <div class="card">
-            <div class="card-header">
-              <h5>Design Lists</h5>
-            </div>
-            <div class="card-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Assets</th>
-                    <th>Height</th>
-                    <th>Width</th>
-                  </tr>
-                </thead>
-                <tr ng-repeat="c in ctrl.designLists().assets">
-                  <td>{{c.title}}</td>
-                  <td>{{c.height}}</td>
-                  <td>{{c.width}}</td>
-                </tr>
-              </table>
-
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Sounds</th>
-                    <th>Source</th>
-                  </tr>
-                </thead>
-                <tr ng-repeat="c in ctrl.designLists().sounds">
-                  <td>{{c.title}}</td>
-                  <td>{{c.source}}</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Constants File</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Skins File</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Unit Test Stubs</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Integration Test Stubs</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Fake Assets File</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Fake Authoring</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Display Stubs</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Orchestrator Stubs</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Assembly File</h5>
-            </div>
-            <div class="card-body">
-              <p>Some Documentation</p>
-            </div>
-          </div>
-        </div>
+        <output-files content="$root.specData"></output-files>
         <div id="edit-content" class="menu-item" style="display:none">
-          <h1 class="text-light">Edit Spec</h1>
+          <h1 class="text-light">Edit Spec: <ng-pluralize count="$root.specData.states.length - 1" when="{0: 'No States', 1: 'One State', other: '{} States'}"></ng-pluralize></h1>
           <div ng-controller="states as statesCtrl">
-            <h3 class="text-light">
-            <ng-pluralize count="$root.specData.states.length - 1" when="{0: 'No States', 1: 'One State', other: '{} States'}"></ng-pluralize>
-          </h3>
             <div class="row" ui-sortable="{distance: 5}" ng-model="$root.specData.states">
               <div class="col-2" ng-repeat="(i,a) in $root.specData.states" ng-switch="a.baseState" ng-click="statesCtrl.selectState(a)">
 
                 <div class="alert alert-primary text-center" ng-switch-when="true">
-                  <p class="text-sm">Base</p>
+                  <div class="text-sm mb-2 ellip">Base (Title)</div>
+                  <div class="ellip">(Code Var Name)</div>
                   <canvas class="test-canvas t-card my-2" ng-class="baseState.active ? 'active': ''"></canvas>
-                  </p>
+                  <div class="ellip">(Located In&hellip;)</div>
                 </div>
 
                 <div class="alert alert-dark" ng-switch-when="false">
-                  <p>
-                    <button class="btn btn-success btn-sm pull-right" ng-click="statesCtrl.copyState(a)">
-                  <i class="fa fa-copy"></i>&nbsp;
-                </button>
-                    <span class="text-dark ellip">{{a.content.title}}</span>
-                  </p>
+                  <button class="btn btn-success btn-sm float-right" ng-click="statesCtrl.copyState(a)">
+                    <i class="fa fa-copy"></i>&nbsp;
+                  </button>
+                  <div class="text-dark ellip mb-2">{{a.title}}</div>
+                  <div class="text-muted">
+                    {{a.var}}
+                  </div>
+
                   <canvas class="test-canvas t-card my-2" ng-class="a.active ? 'active': ''"></canvas>
-                  <p/>
-                  <button class="btn btn-danger btn-sm pull-right" ng-click="statesCtrl.removeState(a)">
-                <i class="fa fa-close"></i>
-              </button>
+                  <div class="d-flex justify-content-between flex-wrap">
+                    <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inInstruction, 'badge-dark': !a.inInstruction}" ng-click="a.inInstruction = !a.inInstruction">I</button>
+                    <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inPractice, 'badge-dark': !a.inPractice}" ng-click="a.inPractice = !a.inPractice">P</button>
+                    <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inQuiz, 'badge-dark': !a.inQuiz}" ng-click="a.inQuiz = !a.inQuiz">Q</button>
+                    <button class="btn btn-danger btn-sm" ng-click="statesCtrl.removeState(a)">
+                      <i class="fa fa-close"></i>
+                    </button>
+                  </div>
+
                 </div>
               </div>
               <div class="col-1">
                 <button class="btn btn-success btn-block" title="Add Screen" ng-click="statesCtrl.addState()">
-              <i class="fa fa-plus fa-3x"></i>
-            </button>
+                  <i class="fa fa-plus fa-3x"></i>
+                </button>
               </div>
             </div>
           </div>
           <br/>
-          <div ng-show="activeState()" class="animated slideInLeft">
+          <div ng-show="activeState()">
             <div class="row">
               <div class="col-1 text-center">
                 &nbsp;
               </div>
               <div class="col-8 text-center">
                 <div class="input-group mb-3">
-                  <input class="form-control text-center" ng-disabled="activeState().baseState" type="text" ng-model="activeState().content.title" placeholder="Name" />
+                  <input class="form-control text-center" ng-disabled="activeState().baseState" type="text" ng-model="activeState().title" placeholder="Name" />
+                  <input class="form-control text-center" ng-disabled="activeState().baseState" type="text" ng-model="activeState().var" placeholder="State Variable" />
+
                   <div class="input-group-append">
                     <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#stateData" aria-expanded="false" aria-controls="collapseExample">
-                  <i class="fa fa-info"></i>
-                </button>
+                      <i class="fa fa-info"></i>
+                    </button>
                   </div>
                 </div>
                 <div class="collapse" id="stateData">
                   <div class="card card-body">
                     <div class="form-group">
-                      <label for="shape-notes">Notes</label>
-                      <textarea class="form-control" id="shape-notes" placeholder="Notes" ng-model="activeState().content.notes">
-                  </textarea>
+                      <label>Available In</label>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="instruction" id="in-Instruction" ng-model="activeState().inInstruction" value="true">
+                              <label class="form-check-label" for="in-Instruction">
+                                Instruction
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group">
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="practice" id="in-Practice" ng-model="activeState().inPractice" value="true">
+                              <label class="form-check-label" for="in-Practice">
+                                Practice
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-group">
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="quiz" id="in-Quiz" ng-model="activeState().inQuiz" value="true">
+                              <label class="form-check-label" for="in-Quiz">
+                                Quiz
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="state-notes">Notes</label>
+                      <textarea class="form-control" id="state-notes" placeholder="Notes" ng-model="activeState().notes">
+                      </textarea>
+                    </div>
+                    <div class="form-group">
+                      <label for="state-link">Link</label>
+                      <input type="text" class="form-control" id="state-link" placeholder="Confluence Link" ng-model="activeState().link"/>
                     </div>
                   </div>
                   <br/>
@@ -279,46 +262,49 @@
                 <!--    Container Items      -->
                 <div ng-show="activeState().baseState">
                   <button class="btn btn-primary btn-block" title="Text" data-toggle="modal" data-target="#mod-text" ng-click="$root.$broadcast('new-text')">
-                <i ng-class="typeToIcon['text']"></i>
-              </button>
+                    <i ng-class="typeToIcon['text']"></i>
+                  </button>
                   <button class="btn btn-primary btn-block" title="Assets" data-toggle="modal" data-target="#mod-asset" ng-click="$root.$broadcast('new-asset')">
-                <i ng-class="typeToIcon['asset']"></i>
-              </button>
+                    <i ng-class="typeToIcon['asset']"></i>
+                  </button>
                   <button class="btn btn-primary btn-block" title="Widgets" data-toggle="modal" data-target="#mod-widget" ng-click="$root.$broadcast('new-widget')">
-                <i ng-class="typeToIcon['widget']"></i>
-              </button>
+                    <i ng-class="typeToIcon['widget']"></i>
+                  </button>
                   <button class="btn btn-primary btn-block" title="Shapes" data-toggle="modal" data-target="#mod-shape" ng-click="$root.$broadcast('new-shape')">
-                <i ng-class="typeToIcon['shape']"></i>
-              </button>
+                    <i ng-class="typeToIcon['shape']"></i>
+                  </button>
                   <br/>
-                  <button class="btn btn-secondary btn-block" title="Containers" data-toggle="modal" data-target="#mod-container" ng-click="$root.$broadcast('new-container')">
-                <i ng-class="typeToIcon['container']"></i>
-              </button>
+                  <!-- <button class="btn btn-secondary btn-block" title="Containers" data-toggle="modal" data-target="#mod-container" ng-click="$root.$broadcast('new-container')">
+                    <i ng-class="typeToIcon['container']"></i>
+                  </button> -->
                   <!-- <button class="btn btn-secondary btn-block" title="Interactions" data-toggle="modal" data-target="#mod-interaction" ng-click="$root.$broadcast('new-interaction')">
-                <i ng-class="typeToIcon['interaction']"></i>
-              </button> -->
+                    <i ng-class="typeToIcon['interaction']"></i>
+                  </button> -->
                 </div>
                 <!--     Not Container Items     -->
                 <div ng-show="!activeState().baseState">
                   <button class="btn btn-secondary btn-block" title="Workspaces" data-toggle="modal" data-target="#mod-workspace" style="display:none">
-                <i ng-class="typeToIcon['workspace']"></i>
-              </button>
+                    <i ng-class="typeToIcon['workspace']"></i>
+                  </button>
                   <button class="btn btn-secondary btn-block" title="Settings" data-toggle="modal" data-target="#mod-setting" ng-click="$root.$broadcast('new-setting')">
-                <i ng-class="typeToIcon['setting']"></i>
-              </button>
+                    <i ng-class="typeToIcon['setting']"></i>
+                  </button>
+                  <button class="btn btn-secondary btn-block" title="Keyframes" data-toggle="modal" data-target="#mod-keyframe" ng-click="$root.$broadcast('new-keyframe')">
+                    <i ng-class="typeToIcon['keyframe']"></i>
+                  </button>
                   <button class="btn btn-secondary btn-block" title="Animations" data-toggle="modal" data-target="#mod-animation" ng-click="$root.$broadcast('new-animation')">
-                <i ng-class="typeToIcon['animation']"></i>
-              </button>
+                    <i ng-class="typeToIcon['animation']"></i>
+                  </button>
                   <button class="btn btn-secondary btn-block" title="Sounds" data-toggle="modal" data-target="#mod-sound" ng-click="$root.$broadcast('new-sound')">
-                <i ng-class="typeToIcon['sound']"></i>
-              </button>
+                    <i ng-class="typeToIcon['sound']"></i>
+                  </button>
                   <button class="btn btn-secondary btn-block" title="Actions" data-toggle="modal" data-target="#mod-action" ng-click="$root.$broadcast('new-action')">
-                <i ng-class="typeToIcon['action']"></i>
-              </button>
+                    <i ng-class="typeToIcon['action']"></i>
+                  </button>
                   <br/>
                   <button class="btn btn-info btn-block" title="Copy Item" data-toggle="modal" data-target="#mod-copy" ng-click="$root.$broadcast('new-copy')">
-                <i class="fa fa-copy"></i>
-              </button>
+                    <i class="fa fa-copy"></i>
+                  </button>
                 </div>
               </div>
               <div class="col-8">
@@ -333,25 +319,28 @@
                 <div class="tab-content bg-white" id="myTabContent" ng-controller="content as contentCtrl">
                   <div class="tab-pane fade show active" id="place" role="tabpanel" aria-labelledby="place-tab">
                     <div id="place-canvas" class="state-size">
-                      <div my-draggable class="draggable border" ng-repeat="item in getContent(activeState(), 'visualElement', true)" ng-click="contentCtrl.setActive(item)" ng-style="{top: getTop(), left: getLeft(), width: item.width * widthRatio(), height: item.height * heightRatio(), zIndex: item.active ? 99999 : $index}"
+                      <div id="origin-offset" origin-offset ng-style="{top: getTop(), left: getLeft()}">
+                        <i class="fa fa-crosshairs text-muted" aria-hidden="true"></i>
+                      </div>
+                      <div my-draggable class="draggable border" ng-repeat="item in getContent(activeState(), 'visualElement', true)" ng-click="contentCtrl.setActive(item)" ng-style="{top: getTop(), left: getLeft(), width: item.params.width * widthRatio(), height: item.params.height * heightRatio(), zIndex: item.active ? 1040 : $index}"
                         ng-class="item.active ? 'border-warning': 'border-primary'">
                         <div ng-switch="item.type">
                           <span class="badge" ng-class="item.active ? 'badge-warning': 'badge-primary'">
                         <i ng-class="typeToIcon[item.type]"></i>
-                      </span> {{item.title}} {{item.depth}}
+                      </span> {{item.title}}
                         </div>
                       </div>
                     </div>
                   </div>
                   <div class="tab-pane fade" id="render" role="tabpanel" aria-labelledby="render-tab">
                     <canvas id="render-canvas" class="state-size" width="1250" height="937">
-                </canvas>
+                    </canvas>
                   </div>
                 </div>
               </div>
 
               <div class="col-3" ng-controller="content as contentCtrl">
-                <tg-dynamic-directive ng-model="activeState().content" tg-dynamic-directive-view="contentCtrl.getView">
+                <tg-dynamic-directive ng-model="contentCtrl.activeState" tg-dynamic-directive-view="contentCtrl.getView">
                 </tg-dynamic-directive>
                 <div style="clear: both;"></div>
               </div>
@@ -405,14 +394,9 @@
                     <label>Variable Name:</label>
                     <input type="text" class="form-control" placeholder="Variable Name" ng-model="ctrl.current.var" />
                   </div>
-                  <div class="form-group">
-                    <label for="shape-notes">Notes</label>
-                    <textarea class="form-control" id="shape-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
-                  </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -436,14 +420,9 @@
                     <label>Variable Name:</label>
                     <input type="text" class="form-control" placeholder="Container Name" ng-model="ctrl.current.var" />
                   </div>
-                  <div class="form-group">
-                    <label for="container-notes">Notes</label>
-                    <textarea class="form-control" id="container-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
-                  </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -467,14 +446,9 @@
                     <label>Variable Name:</label>
                     <input type="text" class="form-control" placeholder="Interaction Var" ng-model="ctrl.current.var" />
                   </div>
-                  <div class="form-group">
-                    <label for="container-notes">Notes</label>
-                    <textarea class="form-control" id="interaction-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
-                  </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -495,8 +469,12 @@
                     <input type="text" class="form-control" placeholder="Text" ng-model="ctrl.current.title" />
                   </div>
                   <div class="form-group">
-                    <label>Variable Name:</label>
-                    <input type="text" class="form-control" placeholder="Container Name" ng-model="ctrl.current.var" />
+                    <label>Code Variable Name:</label>
+                    <input type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
+                  </div>
+                  <div class="form-group">
+                    <label>Delivery Name:</label>
+                    <input type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.delivery" />
                   </div>
                   <div class="form-group">
                     <label>Source:</label>
@@ -507,9 +485,9 @@
                     </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="style" id="style-audio" ng-model="ctrl.current.source" value="style">
+                      <input class="form-check-input" type="radio" name="style" id="style-audio" ng-model="ctrl.current.source" value="constant">
                       <label class="form-check-label" for="style-audio">
-                      Style
+                      Constant
                     </label>
                     </div>
                   </div>
@@ -517,31 +495,32 @@
                     <div class="col-6">
                       <div class="form-group">
                         <label>Position X:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.x" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.x" />
                       </div>
                       <div class="form-group">
                         <label>Position Y:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.y" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.y" />
                       </div>
                     </div>
                     <div class="col-6">
                       <div class="form-group">
                         <label>Font:</label>
-                        <input type="text" class="form-control" ng-model="ctrl.current.font" />
+                        <input type="text" class="form-control" ng-model="ctrl.current.params.font" />
                       </div>
                       <div class="form-group">
                         <label>Size:</label>
-                        <input type="text" class="form-control" ng-model="ctrl.current.size" />
+                        <input type="text" class="form-control" ng-model="ctrl.current.params.size" />
                       </div>
                       <div class="form-group">
-                        <label>Color:</label>
-                        <input type="text" class="form-control" ng-model="ctrl.current.color" />
+                        <label>Color: {{ctrl.current.params.color}}</label>
+                        <input class="form-control" color-picker ng-style="{background:ctrl.current.params.color}" color-picker-model="ctrl.current.params.color" color-picker-output-format="'hex'" color-picker-position="top" color-picker-fixed-position="false"
+                          color-picker-show-cancel-button="false" color-picker-show-value="false" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -558,42 +537,42 @@
                 </div>
                 <div class="modal-body">
                   <div class="form-group">
-                    <label>Asset Title:</label>
+                    <label>Asset Name:</label>
                     <input type="text" class="form-control" placeholder="Asset Name" ng-model="ctrl.current.title" />
                   </div>
                   <div class="form-group">
-                    <label>Asset File Name:</label>
-                    <input type="text" class="form-control" placeholder="Name in Asset File" ng-model="ctrl.current.name" />
+                    <label>Code Variable Name:</label>
+                    <input type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
                   </div>
                   <div class="form-group">
-                    <label>Variable Name:</label>
-                    <input type="text" class="form-control" placeholder="Name in Constants File" ng-model="ctrl.current.var" />
+                    <label>Expected Name:</label>
+                    <input type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.params.assetName" />
                   </div>
                   <div class="row">
                     <div class="col-6">
                       <div class="form-group">
                         <label>Position X:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.x" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.x" />
                       </div>
                       <div class="form-group">
                         <label>Position Y:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.y" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.y" />
                       </div>
                     </div>
                     <div class="col-6">
                       <div class="form-group">
                         <label>Width:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.width" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.width" />
                       </div>
                       <div class="form-group">
                         <label>Height:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.height" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.height" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -614,8 +593,12 @@
                     <input type="text" class="form-control" id="sound-title" placeholder="Sound" ng-model="ctrl.current.title">
                   </div>
                   <div class="form-group">
-                    <label>Variable Name:</label>
-                    <input type="text" class="form-control" placeholder="Container Name" ng-model="ctrl.current.var" />
+                    <label>Code Variable Name:</label>
+                    <input type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
+                  </div>
+                  <div class="form-group">
+                    <label>Delivery Name:</label>
+                    <input type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.delivery" />
                   </div>
                   <div class="form-group">
                     <label>Source:</label>
@@ -632,20 +615,15 @@
                     </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="style" id="style-audio" ng-model="ctrl.current.source" value="global">
-                      <label class="form-check-label" for="style-audio">
+                      <input class="form-check-input" type="radio" name="style" id="global-audio" ng-model="ctrl.current.source" value="global">
+                      <label class="form-check-label" for="global-audio">
                       Global
                     </label>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label for="sound-notes">Notes</label>
-                    <textarea class="form-control" id="sound-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
-                  </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -669,14 +647,9 @@
                     <label>Variable Name:</label>
                     <input type="text" class="form-control" placeholder="Container Name" ng-model="ctrl.current.var" />
                   </div>
-                  <div class="form-group">
-                    <label for="action-notes">Notes</label>
-                    <textarea class="form-control" id="action-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
-                  </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -719,27 +692,27 @@
                     <div class="col-6">
                       <div class="form-group">
                         <label>Position X:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.x" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.x" />
                       </div>
                       <div class="form-group">
                         <label>Position Y:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.y" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.y" />
                       </div>
                     </div>
                     <div class="col-6">
                       <div class="form-group">
                         <label>Width:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.width" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.width" />
                       </div>
                       <div class="form-group">
                         <label>Height:</label>
-                        <input type="number" class="form-control" ng-model="ctrl.current.height" />
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.height" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -763,14 +736,9 @@
                     <label>Variable Name:</label>
                     <input type="text" class="form-control" placeholder="Container Name" ng-model="ctrl.current.var" />
                   </div>
-                  <div class="form-group">
-                    <label for="animation-notes">Notes</label>
-                    <textarea class="form-control" id="animation-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
-                  </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -820,14 +788,45 @@
                     </label>
                     </div>
                   </div>
+                </div>
+                <div class="modal-footer">
+                  <modal-actions ctrl="ctrl"></modal-actions>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Add Keyframe -->
+          <div id="mod-keyframe" class="modal" tabindex="-1" role="dialog" ng-controller="keyframes as ctrl">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Keyframes</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
                   <div class="form-group">
-                    <label for="setting-notes">Notes</label>
-                    <textarea class="form-control" id="setting-notes" placeholder="Notes" ng-model="ctrl.current.notes">
-                  </textarea>
+                    <label for="setting-title">Name:</label>
+                    <input type="text" class="form-control" id="keyframe-title" placeholder="Keyframe" ng-model="ctrl.current.title">
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="form-group">
+                        <label>Keyframe Label:</label>
+                        <input type="text" class="form-control" placeholder="Keyframe Label" ng-model="ctrl.current.var" />
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="form-group">
+                        <label>Keyframe Number:</label>
+                        <input type="text" class="form-control" placeholder="Keyframe Number" ng-model="ctrl.current.value" />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <ng-include src="'modal-actions'"></ng-include>
+                  <modal-actions ctrl="ctrl"></modal-actions>
                 </div>
               </div>
             </div>
@@ -836,14 +835,12 @@
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title">Current Data</h5>
+                  <h5 class="modal-title">Input Data</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
                 </div>
                 <div class="modal-body">
-                  <p class="font-xs" ng-bind="$root.specData.states | json"></p>
-                  <h3>Input</h3>
                   <textarea class="form-control" ng-model="jsonInput"></textarea>
                 </div>
                 <div class="modal-footer">
@@ -869,7 +866,7 @@
                       Select State:
                       <div ng-repeat="s in $root.specData.states">
                         <div class="btn btn-sm mb-1 btn-block" ng-click="ctrl.chooseState(s)" ng-class="{'btn-primary': s == ctrl.current, 'btn-secondary': s != ctrl.current}">
-                          {{s.content.title}}
+                          {{s.title}}
                         </div>
                       </div>
                     </div>
@@ -902,43 +899,7 @@
           </div>
         </div>
 
-        <script type="text/ng-template" id="modal-actions">
-          <button type="button" class="btn btn-secondary" ng-show="ctrl.current.new" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" ng-controller="content as contentCtrl" ng-show="ctrl.current.new" ng-click="contentCtrl.addContent(activeState(), ctrl.current, ctrl.type); hideModal('#mod-' + ctrl.type)">Save {{ctrl.type | capitalize}}</button>
-          <button type="button" class="btn btn-success" ng-hide="ctrl.current.new" ng-click="hideModal('#mod-' + ctrl.type)">Edit {{ctrl.type | capitalize }}</button>
-        </script>
 
-        <script type="text/ng-template" id="nestable_item.html">
-          <div ng-controller="content as contentCtrl">
-            <div class="apps-container" ui-sortable="sortableOptions" ng-model="ngModelItem.items">
-              <br ng-show="ngModelItem.canHaveChildren" />
-              <div ng-class="{'border py-1 m-2': item.canHaveChildren, 'border-warning': item.canHaveChildren && item.active, 'border-primary': item.canHaveChildren && !item.active}" class="px-1" ng-repeat="item in ngModelItem.items">
-
-                <div class="p-1 mb-2 text-light" ng-click="contentCtrl.setActive(item)" ng-class="item.active ? 'bg-warning': 'bg-secondary'">
-                  <div class="row" ng-controller="content">
-                    <div class="col-3 text-left">
-                      <div class="badge badge-dark">
-                        <i ng-class="typeToIcon[item.type]" class="fa-2x"></i>
-                      </div>
-                    </div>
-                    <div class="col-6 text-center">
-                      <button class="btn btn-link btn-sm text-light" title="Edit {{item.type | capitalize}}" ng-click="$root.$broadcast('load-'+item.type, item)">{{item.title}}</button>
-                    </div>
-                    <div class="col-3 text-right">
-                      <button class="btn btn-danger btn-sm" ng-click="removeContent(ngModelItem.items, item)">
-                    <i class="fa fa-close"></i>
-                  </button>
-                    </div>
-                  </div>
-
-                </div>
-
-                <tg-dynamic-directive ng-model="item" tg-dynamic-directive-view="contentCtrl.getView">
-                </tg-dynamic-directive>
-              </div>
-            </div>
-          </div>
-      </div>
       </script>
       <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
       <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js'></script>
@@ -948,7 +909,9 @@
       <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js'></script>
       <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js'></script>
       <script src='https://rawgithub.com/thgreasi/tg-dynamic-directive/master/src/tg.dynamic.directive.js'></script>
+      <script src="js/colorpicker.js"></script>
       <script src='js/script.js'></script>
+      <script src='js/modalActions.js'></script>
       <script src='js/output.js'></script>
       <script>
         window.onunload = function() {

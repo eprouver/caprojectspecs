@@ -1,0 +1,266 @@
+<div id="output-files" class="menu-item">
+  <h1 class="text-light">Output Files</h1>
+
+  <div class="card">
+    <div class="card-header">
+      <h5>Design Lists</h5>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Assets</th>
+            <th>
+              Keyframes
+              <div class="row">
+                <div class="col text-info">Label</div>
+                <div class="col">Number</div>
+              </div>
+            </th>
+            <th>Height</th>
+            <th>Width</th>
+            <th>Expected Name</th>
+          </tr>
+        </thead>
+        <tr ng-repeat="c in ctrl.designLists().assets">
+          <td>{{c.title}}</td>
+          <td>
+            <div ng-repeat="s in ctrl.getFirstItems(c.id, 'keyframe')">
+              {{s.title}} - {{s.notes || 'no notes'}}
+              <div class="row">
+                <div class="col text-info">{{s.var}}</div>
+                <div class="col"><strong>#:</strong> {{s.value}}</div>
+              </div>
+              <br/>
+            </div>
+          </td>
+          <td>{{c.params.height}}</td>
+          <td>{{c.params.width}}</td>
+          <td>{{c.params.assetName}}</td>
+        </tr>
+      </table>
+      <br/>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Sounds</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tr ng-repeat="c in ctrl.designLists().sounds">
+          <td>{{c.title}}</td>
+          <td>{{c.source}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Index File: <span class="float-right">src/renderers/{{ctrl.underscoreCode()}}/index.js</span></h5>
+    </div>
+    <div class="card-body">
+      <code>
+        <div>import <span ng-bind="ctrl.upperCode()"></span>sRenderer from './<span ng-bind="ctrl.upperCode()"></span>sRenderer';</div>
+        <br/>
+        <div>export const renderer = <span ng-bind="ctrl.upperCode()"></span>sRenderer;</div>
+      </code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Fake Assets File <span class="float-right">assets/styles/{{ctrl.underscoreCode()}}.js</span></h5>
+    </div>
+    <div class="card-body">
+      <code>
+        const lib = {};
+        <br/><br/>
+
+        <div ng-repeat="a in ctrl.assetsFile()">
+          {{a}}
+        </div>
+        <br/>
+        module.exports = { <span ng-bind="ctrl.underscoreCode().toUpperCase()"></span>: lib };<br/>
+        <br/>
+      </code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Constants File <span class="float-right">src/renderers/{{ctrl.underscoreCode()}}/constants.js</span></h5>
+    </div>
+    <div class="card-body">
+      <code>
+        <div>import { GLOBAL } from '@cainc/ifabric';</div>
+        <div>import { <span ng-bind="ctrl.underscoreCode().toUpperCase()"></span> } from 'styles/<span ng-bind="ctrl.underscoreCode()"></span>';</div>
+        <br/>
+        <div ng-bind-html="ctrl.constantsFile()"></div>
+      </code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Fake Style <span class="float-right">
+        <span class="text-info">Charles:</span>
+        content/shared/styles/{{ctrl.underscoreCode().toUpperCase()}}/style.json</span></h5>
+    </div>
+    <div class="card-body">
+      <code>
+        {
+          "id": "<span ng-bind="ctrl.underscoreCode()"></span>",
+          "type": "style",
+          "help": {
+            "type": "audio",
+            "parts": [{
+              "src": "${content}/shared/global/audio/help.mp3"
+            }]
+          },
+          "feedback": {
+            "correct": {
+              "type": "audio",
+              "parts": [{
+                "src": "${content}/shared/global/audio/default-correct.mp3"
+              }]
+            },
+            "tryagain": {
+              "type": "audio",
+              "parts": [{
+                "src": "${content}/shared/global/audio/default-tryagain.mp3"
+              }]
+            },
+            "incorrect": {
+              "type": "audio",
+              "parts": [{
+                "src": "${content}/shared/global/audio/default-incorrect.mp3"
+              }]
+            }
+          }
+        }
+      </code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Fake Authoring
+        <span class="float-right">
+          <span class="text-info">Charles:</span> content/math/demo/{{ctrl.underscoreCode()}}/{{ctrl.underscoreCode()}}.json</span>
+      </h5>
+    </div>
+    <div class="card-body">
+      <code ng-bind="ctrl.authoringFile()">  </code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>iFLC Renderer Stubs</h5>
+    </div>
+    <div class="card-body">
+      <code>
+        import { ACTIONS, SHARED_DEPENDENCIES, GLOBAL } from '@cainc/ifabric';
+        import { BaseMathLCRenderer } from '../iFLC/BaseMathLCRenderer';
+        import * as CONSTANTS from './constants';
+        import './<span ng-bind="ctrl.upperCode()"></span>sRenderer.less';
+
+        const { audioActions } = ACTIONS;
+        const { SFX } = GLOBAL;
+
+        const { React, _ } = SHARED_DEPENDENCIES;
+      </code>
+
+      </br></br>
+        // All the visual elements
+        <div>const rendererContent = <span ng-bind="ctrl.rendererContent().content"></span>;</div>
+        <div>const rendererStates = <span ng-bind="ctrl.rendererContent().states"></span>;</div>
+      </br></br>
+
+        repeat each state {
+          change all the visual elements
+
+          put pseudo code for all the non visual elements
+        }
+
+        Create Each State and return the JSX
+
+      </br></br>
+        <code>
+
+        export default class IFLCT1S1sRenderer extends BaseMathLCRenderer {
+          constructor(props, options = {}) {
+            super(props);
+          }
+
+          ready() {}
+
+          render() {
+            return (this.rendererHolder());
+          }
+
+          onSelect(onComplete) {}
+
+          preTryAgainFeedback(seq) {}
+
+          postTryAgainFeedback(seq) {}
+
+          preCorrectFeedback(seq) {}
+
+          postCorrectFeedback(seq) {}
+
+          preIncorrectFeedback(seq) {}
+
+          postIncorrectFeedback(seq) {}
+
+          postFeedback(seq) {}
+
+          wrapup(seq) {}
+
+          handleDocumentClick(evt) {}
+        }
+
+      </code>
+    </div>
+  </div>
+
+  <br/>
+  <h2 class="text-warning">Dragons</h2>
+  <br/>
+
+  <div class="card">
+    <div class="card-header">
+      <h5>Unit Test Stubs</h5>
+    </div>
+    <div class="card-body">
+      <p>Some Documentation</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Integration Test Stubs</h5>
+    </div>
+    <div class="card-body">
+      <p>Some Documentation</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Display Stubs</h5>
+    </div>
+    <div class="card-body">
+      <p>Some Documentation</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Orchestrator Stubs</h5>
+    </div>
+    <div class="card-body">
+      <p>Some Documentation</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>Raw Spec Tool Data</h5>
+    </div>
+    <div class="card-body">
+      <p class="font-xs" ng-bind="content | json"></p>
+    </div>
+  </div>
+</div>

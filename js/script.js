@@ -23,7 +23,7 @@ const getContent = (state, prop, value) => {
 
   const extractChildren = x => x.items;
 
-  let content = flatten(extractChildren(state.content), extractChildren);
+  let content = flatten(extractChildren(state), extractChildren);
 
   if(!_.isUndefined(prop) && !_.isUndefined(value)){
     content = content.filter(c => c[prop] === value)
@@ -32,7 +32,7 @@ const getContent = (state, prop, value) => {
   return content;
 };
 
-var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorage']).run(($rootScope, $localStorage) => {
+var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorage', 'colorpicker']).run(($rootScope, $localStorage, $timeout) => {
   $rootScope.typeToIcon = {
     "workspace": "fa fa-fw fa-window-maximize",
     "text": "fa fa-fw fa-font",
@@ -45,6 +45,7 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
     "action": "fa fa-fw fa-hand-pointer-o",
     "animation": "fa fa-fw fa-magic",
     "interaction": 'fa fa-fw fa-exchange',
+    "keyframe": 'fa fa-fw fa-exchange',
   };
 
   $rootScope.specData = {
@@ -62,11 +63,12 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
     $rootScope.specData.states.push({
       active: true,
       baseState: true,
-      content: {
-        title: 'Base State',
-        items: [],
-      },
+      title: 'Base State',
+      items: [],
       active: true,
+      renderer: 'canvas',
+      originOffsetX: 0,
+      originOffsetY: 0,
     });
   }
 
@@ -79,7 +81,7 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
   $rootScope.getContent = getContent;
 
   $rootScope.inputJSON = function(input) {
-    $rootScope.specData.states = $.parseJSON(input);
+    $rootScope.specData = $.parseJSON(input);
   };
 
   $rootScope.hideModal = function(id) {
@@ -87,6 +89,7 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
   };
 
   $('#app-holder').show();
+
 });
 
 app.filter('capitalize', function() {
@@ -95,10 +98,72 @@ app.filter('capitalize', function() {
   }
 });
 
+app.directive('originOffset', function($rootScope, $window, states) {
+  return {
+    restrict: 'A',
+    link: function(scope, elm, attrs) {
+
+      scope.heightRatio = heightRatio;
+      scope.widthRatio = widthRatio;
+
+      elm.draggable({
+        containment: "parent",
+        helper: 'clone',
+        classes: {
+          "ui-draggable-dragging": "my-dragging"
+        },
+        stop: function(e, ui) {
+          const newX = ~~(ui.position.left / scope.widthRatio());
+          const newY = ~~(ui.position.top / scope.heightRatio());
+          $rootScope.specData.originOffsetX = newX;
+          $rootScope.specData.originOffsetY = newY;
+
+          $rootScope.$digest();
+          e.stopPropagation();
+        }
+      });
+
+      scope.getTop = function() {
+        return $rootScope.specData.originOffsetY * scope.heightRatio();
+      }
+
+      scope.getLeft = function() {
+        return $rootScope.specData.originOffsetX * scope.widthRatio();
+      }
+    }
+  }
+});
+
+const heightRatio = function() {
+  const bounds = document.getElementById('place-canvas').getBoundingClientRect();
+  return (bounds.height / state.height)
+};
+
+const widthRatio = function() {
+  const bounds = document.getElementById('place-canvas').getBoundingClientRect();
+  return (bounds.width / state.width)
+};
+
 app.directive('myDraggable', function($rootScope, $window, states) {
   return {
     restrict: 'A',
     link: function(scope, elm, attrs) {
+
+      scope.heightRatio = heightRatio;
+      scope.widthRatio = widthRatio;
+
+      const updateRecur = (items, property, value) => {
+        items.forEach((i) => {
+          if (i.id == scope.item.id) {
+            i.params[property] = value;
+          }
+
+          if (i.items && i.items.length) {
+            updateRecur(i.items, property, value);
+          }
+        });
+      }
+
       elm.draggable({
         containment: "parent",
         helper: 'clone',
@@ -109,26 +174,15 @@ app.directive('myDraggable', function($rootScope, $window, states) {
           const newX = ~~(ui.position.left / scope.widthRatio());
           const newY = ~~(ui.position.top / scope.heightRatio());
 
-          if (states.length > 1 && scope.activeState().baseState && confirm(`Update X & Y in all instances of ${scope.item.title}?`)) {
-            const updateRecur = (items, property, value) => {
-              items.forEach((i) => {
-                if (i.id == scope.item.id) {
-                  i[property] = value;
-                }
-
-                if (i.items && i.items.length) {
-                  updateRecur(i.items, property, value);
-                }
-              });
-            }
+          if (states.length > 1 && $rootScope.activeState().baseState && confirm(`Update X & Y in all instances of ${scope.item.title}?`)) {
 
             states.forEach(s => {
-              updateRecur(s.content.items, 'x', newX);
-              updateRecur(s.content.items, 'y', newY);
+              updateRecur(s.items, 'x', newX);
+              updateRecur(s.items, 'y', newY);
             })
           } else {
-            scope.item.x = newX;
-            scope.item.y = newY;
+            scope.item.params.x = newX;
+            scope.item.params.y = newY;
           }
 
           $rootScope.$digest();
@@ -142,26 +196,15 @@ app.directive('myDraggable', function($rootScope, $window, states) {
           const newWidth = ~~(ui.size.width / scope.widthRatio());
           const newHeight = ~~(ui.size.height / scope.heightRatio());
 
-          if (states.length > 1 && scope.activeState().baseState && confirm(`Update width & height in all instances of ${scope.item.title}?`)) {
-            const updateRecur = (items, property, value) => {
-              items.forEach((i) => {
-                if (i.id == scope.item.id) {
-                  i[property] = value;
-                }
-
-                if (i.items && i.items.length) {
-                  updateRecur(i.items, property, value);
-                }
-              });
-            }
+          if (states.length > 1 && $rootScope.activeState().baseState && confirm(`Update width & height in all instances of ${scope.item.title}?`)) {
 
             states.forEach(s => {
-              updateRecur(s.content.items, 'width', newWidth);
-              updateRecur(s.content.items, 'height', newHeight);
+              updateRecur(s.items, 'width', newWidth);
+              updateRecur(s.items, 'height', newHeight);
             })
           } else {
-            scope.item.width = newWidth;
-            scope.item.height = newHeight;
+            scope.item.params.width = newWidth;
+            scope.item.params.height = newHeight;
           }
 
           $rootScope.$digest();
@@ -169,22 +212,12 @@ app.directive('myDraggable', function($rootScope, $window, states) {
         },
       });
 
-      scope.heightRatio = function() {
-        const bounds = document.getElementById('place-canvas').getBoundingClientRect();
-        return (bounds.height / state.height)
-      }
-
-      scope.widthRatio = function() {
-        const bounds = document.getElementById('place-canvas').getBoundingClientRect();
-        return (bounds.width / state.width)
-      }
-
       scope.getTop = function() {
-        return scope.item.y * scope.heightRatio();
+        return scope.item.params.y * scope.heightRatio();
       }
 
       scope.getLeft = function() {
-        return scope.item.x * scope.widthRatio();
+        return scope.item.params.x * scope.widthRatio();
       }
 
       angular.element($window).bind('resize', function() {
@@ -194,7 +227,7 @@ app.directive('myDraggable', function($rootScope, $window, states) {
   };
 });
 
-app.controller("content", function($scope, activeState, states) {
+app.controller('content', function($scope, $rootScope, states) {
   const ctrl = this;
 
   ctrl.addContent = (state, content, type) => {
@@ -214,18 +247,20 @@ app.controller("content", function($scope, activeState, states) {
     if (state.baseState) {
       content.baseObject = false;
       states.forEach(s => {
-        s.content.items.unshift(angular.copy(content));
+        s.items.unshift(angular.copy(content));
       });
     } else {
       content.baseObject = true;
-      state.content.items.unshift(content);
+      state.items.unshift(content);
     }
   };
 
   $scope.removeContent = (parent, content) => {
-    const index = _(parent).findIndex(c => c.id === content.id);
-    if (index > -1) {
-      parent.splice(index, 1);
+    if(confirm(`Remove ${content.title} and children?`)){
+      const index = _(parent).findIndex(c => c.id === content.id);
+      if (index > -1) {
+        parent.splice(index, 1);
+      }
     }
   }
 
@@ -244,7 +279,7 @@ app.controller("content", function($scope, activeState, states) {
       });
     }
 
-    deactivateRecur($scope.activeState().content.items);
+    deactivateRecur($rootScope.activeState().items);
 
   }
 
@@ -262,10 +297,16 @@ app.controller("content", function($scope, activeState, states) {
     distance: 5,
   };
 
+  this.activeState = $rootScope.activeState();
+
+  $scope.$on('state-change', () => {
+    this.activeState = $rootScope.activeState();
+  });
+
 
   this.getView = function(item) {
     if (item) {
-      return 'nestable_item.html';
+      return 'templates/nestable_item.html';
     }
     return null;
   };
@@ -275,19 +316,12 @@ app.service("states", function($rootScope) {
   return $rootScope.specData.states;
 });
 
-app.service("activeState", function(states) {
-  const active = _(states).findIndex({
-    active: true
-  });
-  return active;
-});
-
 app.controller("states", function($scope, $rootScope) {
   const ctrl = this;
   ctrl.addState = function() {
     const newGuy = angular.copy($scope.baseState);
     newGuy.baseState = false;
-    newGuy.content.title = 'New State';
+    newGuy.title = 'New State';
     newGuy.active = false;
     $rootScope.specData.states.push(newGuy);
   };
@@ -299,15 +333,18 @@ app.controller("states", function($scope, $rootScope) {
   }
 
   ctrl.removeState = (state) => {
-    $rootScope.specData.states.splice($rootScope.specData.states.indexOf(state), 1);
-    if (!_($rootScope.specData.states).some(s => s.active)) {
-      $rootScope.specData.states[0].active = true;
+    if(confirm(`Remove ${state.title}?`)){
+      $rootScope.specData.states.splice($rootScope.specData.states.indexOf(state), 1);
+      if (!_($rootScope.specData.states).some(s => s.active)) {
+        $rootScope.specData.states[0].active = true;
+      }
     }
   };
 
   ctrl.selectState = (state) => {
     $rootScope.specData.states.forEach(s => (s.active = false));
     state.active = true;
+    $rootScope.$broadcast('state-change');
   };
 
   $scope.$watch('$root.states', () => {
@@ -536,6 +573,31 @@ app.controller('shapes', function($scope) {
 
   $scope.$on('load-shape', (s, content) => {
     $('#mod-shape').modal('show');
+    content.new = false;
+    ctrl.current = content;
+  });
+});
+
+app.controller('keyframes', function($scope) {
+  const ctrl = this;
+  ctrl.type = 'keyframe';
+
+  const newKeyframe = () => {
+    return {
+      title: '',
+      type: ctrl.type,
+      new: true,
+      visualElement: false,
+      canHaveChildren: false,
+    }
+  }
+
+  $scope.$on('new-keyframe', () => {
+    ctrl.current = newKeyframe();
+  });
+
+  $scope.$on('load-keyframe', (s, content) => {
+    $('#mod-keyframe').modal('show');
     content.new = false;
     ctrl.current = content;
   });
