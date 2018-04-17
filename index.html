@@ -322,7 +322,7 @@
                       <div id="origin-offset" origin-offset ng-style="{top: getTop(), left: getLeft()}">
                         <i class="fa fa-crosshairs text-muted" aria-hidden="true"></i>
                       </div>
-                      <div my-draggable class="draggable border" ng-repeat="item in getContent(activeState(), 'visualElement', true)" ng-click="contentCtrl.setActive(item)" ng-style="{top: getTop(), left: getLeft(), width: item.params.width * widthRatio(), height: item.params.height * heightRatio(), zIndex: item.active ? 1040 : $index}"
+                      <div my-draggable ng-dblclick="$root.$broadcast('load-'+item.type, item)" class="draggable border" ng-show="item.params.visible" ng-repeat="item in getContent(activeState(), 'visualElement', true)" ng-click="contentCtrl.setActive(item)" ng-style="{top: getTop(), left: getLeft(), width: item.params.width * widthRatio(), height: item.params.height * heightRatio(), zIndex: item.active ? 1040 : $index}"
                         ng-class="item.active ? 'border-warning': 'border-primary'">
                         <div ng-switch="item.type">
                           <span class="badge" ng-class="item.active ? 'badge-warning': 'badge-primary'">
@@ -538,29 +538,25 @@
                 <div class="modal-body">
                   <div class="form-group">
                     <label>Asset Name:</label>
-                    <input required type="text" class="form-control" placeholder="Asset Name" ng-model="ctrl.current.title" />
+                    <input type="text" class="form-control" placeholder="Asset Name" ng-model="ctrl.current.title" />
                   </div>
                   <div class="row">
                     <div class="col">
                       <div class="form-group">
                         <label>Code Variable Name:</label>
-                        <input required type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
+                        <input type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
                       </div>
                     </div>
                     <div class="col">
                       <div class="form-group">
                         <label>Keyframe:</label>
-                        <input required type="number" class="form-control" placeholder="Keyframe" value="0" ng-model="ctrl.current.params.keyframe" />
+                        <input type="number" class="form-control" placeholder="Keyframe" ng-model="ctrl.current.params.keyframe" />
                       </div>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>Code Variable Name:</label>
-                    <input required type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
-                  </div>
-                  <div class="form-group">
                     <label>Expected Name:</label>
-                    <input required type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.params.assetName" />
+                    <input type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.params.assetName" />
                   </div>
                   <div class="row">
                     <div class="col-6">

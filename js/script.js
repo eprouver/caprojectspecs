@@ -1,7 +1,5 @@
 const state = {
-  bottom: 58,
-  height: 937,
-  top: 27,
+  height: 852,
   width: 1250,
 };
 
@@ -30,6 +28,48 @@ const getContent = (state, prop, value) => {
   }
 
   return content;
+};
+
+const removeContent = (state, id) => {
+  state.items = state.items
+      .filter(i => i.id !== id)
+      .map(i => removeContent(i, id));
+  return state;
+};
+
+const getDiff = (object, base) => {
+	function changes(object, base) {
+		return _.transform(object, function(result, value, key) {
+			if (!_.isEqual(value, base[key])) {
+				result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+			}
+		});
+	}
+	return changes(object, base);
+}
+
+const updateParamsRecur = (id, items, property, value) => {
+  items.forEach((i) => {
+    if (i.id == id) {
+      i.params[property] = value;
+    }
+
+    if (i.items && i.items.length) {
+      updateParamsRecur(id, i.items, property, value);
+    }
+  });
+};
+
+const updateRecur = (id, items, property, value) => {
+  items.forEach((i) => {
+    if (i.id == id) {
+      i[property] = value;
+    }
+
+    if (i.items && i.items.length) {
+      updateRecur(id, i.items, property, value);
+    }
+  });
 };
 
 var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorage', 'colorpicker']).run(($rootScope, $localStorage, $timeout) => {
@@ -163,18 +203,6 @@ app.directive('myDraggable', function($rootScope, $window, states) {
       scope.heightRatio = heightRatio;
       scope.widthRatio = widthRatio;
 
-      const updateRecur = (items, property, value) => {
-        items.forEach((i) => {
-          if (i.id == scope.item.id) {
-            i.params[property] = value;
-          }
-
-          if (i.items && i.items.length) {
-            updateRecur(i.items, property, value);
-          }
-        });
-      }
-
       elm.draggable({
         containment: "parent",
         helper: 'clone',
@@ -188,8 +216,8 @@ app.directive('myDraggable', function($rootScope, $window, states) {
           if (states.length > 1 && $rootScope.activeState().baseState && confirm(`Update X & Y in all instances of ${scope.item.title}?`)) {
 
             states.forEach(s => {
-              updateRecur(s.items, 'x', newX);
-              updateRecur(s.items, 'y', newY);
+              updateParamsRecur(scope.item.id, s.items, 'x', newX);
+              updateParamsRecur(scope.item.id, s.items, 'y', newY);
             })
           } else {
             scope.item.params.x = newX;
@@ -210,8 +238,8 @@ app.directive('myDraggable', function($rootScope, $window, states) {
           if (states.length > 1 && $rootScope.activeState().baseState && confirm(`Update width & height in all instances of ${scope.item.title}?`)) {
 
             states.forEach(s => {
-              updateRecur(s.items, 'width', newWidth);
-              updateRecur(s.items, 'height', newHeight);
+              updateParamsRecur(scope.item.id, s, 'width', newWidth);
+              updateParamsRecur(scope.item.id, s, 'height', newHeight);
             })
           } else {
             scope.item.params.width = newWidth;
@@ -266,11 +294,16 @@ app.controller('content', function($scope, $rootScope, states) {
     }
   };
 
-  $scope.removeContent = (parent, content) => {
-    if(confirm(`Remove ${content.title} and children?`)){
-      const index = _(parent).findIndex(c => c.id === content.id);
-      if (index > -1) {
-        parent.splice(index, 1);
+  $scope.removeContent = (state, content, baseRemove) => {
+    if (baseRemove) {
+      if(confirm(`Remove ${content.title} from all screens?`)){
+        states.forEach(s => {
+          removeContent(s, content.id);
+        });
+      }
+    } else {
+      if(confirm(`Remove ${content.title} and children?`)){
+        removeContent(state, content.id);
       }
     }
   }
@@ -374,6 +407,9 @@ app.controller('sounds', function($scope) {
       type: 'sound',
       new: true,
       visualElement: false,
+      params: {
+        visible: true,
+      },
       canHaveChildren: false,
     }
   }
@@ -385,7 +421,8 @@ app.controller('sounds', function($scope) {
   $scope.$on('load-sound', (s, content) => {
     $('#mod-sound').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -410,7 +447,8 @@ app.controller('settings', function($scope) {
   $scope.$on('load-setting', (s, content) => {
     $('#mod-setting').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -424,7 +462,7 @@ app.controller('actions', function($scope) {
       type: 'action',
       new: true,
       visualElement: false,
-      canHaveChildren: false,
+      canHaveChildren: true,
     }
   }
 
@@ -435,7 +473,8 @@ app.controller('actions', function($scope) {
   $scope.$on('load-action', (s, content) => {
     $('#mod-action').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -449,6 +488,9 @@ app.controller('text', function($scope) {
       type: 'text',
       new: true,
       visualElement: true,
+      params: {
+        visible: true,
+      },
       canHaveChildren: true,
     }
   }
@@ -460,7 +502,8 @@ app.controller('text', function($scope) {
   $scope.$on('load-text', (s, content) => {
     $('#mod-text').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -481,6 +524,9 @@ app.controller('assets', function($scope) {
         keyframe: 0,
       },
       visualElement: true,
+      params: {
+        visible: true,
+      },
       canHaveChildren: true,
     }
   }
@@ -492,7 +538,8 @@ app.controller('assets', function($scope) {
   $scope.$on('load-asset', (s, content) => {
     $('#mod-asset').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -506,6 +553,9 @@ app.controller('widgets', function($scope) {
       type: 'widget',
       new: true,
       visualElement: true,
+      params: {
+        visible: true,
+      },
       canHaveChildren: true,
     }
   }
@@ -517,7 +567,8 @@ app.controller('widgets', function($scope) {
   $scope.$on('load-widget', (s, content) => {
     $('#mod-widget').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -542,7 +593,8 @@ app.controller('containers', function($scope) {
   $scope.$on('load-container', (s, content) => {
     $('#mod-container').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -567,7 +619,8 @@ app.controller('animations', function($scope) {
   $scope.$on('load-animation', (s, content) => {
     $('#mod-animation').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -581,6 +634,9 @@ app.controller('shapes', function($scope) {
       type: 'shape',
       new: true,
       visualElement: true,
+      params: {
+        visible: true,
+      },
       canHaveChildren: true,
     }
   }
@@ -592,7 +648,8 @@ app.controller('shapes', function($scope) {
   $scope.$on('load-shape', (s, content) => {
     $('#mod-shape').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -617,7 +674,8 @@ app.controller('keyframes', function($scope) {
   $scope.$on('load-keyframe', (s, content) => {
     $('#mod-keyframe').modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
@@ -642,13 +700,13 @@ app.controller('interactions', function($scope) {
   $scope.$on('load-' + ctrl.type, (s, content) => {
     $('#mod-' + ctrl.type).modal('show');
     content.new = false;
-    ctrl.current = content;
+    ctrl.original = content;
+    ctrl.current = angular.copy(content);
   });
 });
 
 app.controller('copy', function($scope) {
   const ctrl = this;
-
 
   $scope.$on('new-' + ctrl.type, () => {
     ctrl.current = null;
@@ -676,15 +734,13 @@ app.directive('testCanvas', function(){
         ctx.clearRect(0,0,state.width, state.height);
         ctx.font = "20px Arial";
 
-        scope.items.filter(i => i.visualElement).forEach(i => {
+        scope.items.filter(i => i.visualElement && i.params.visible).forEach(i => {
           ctx.fillStyle = i.demoColor || 'black';
           ctx.fillRect(i.params.x, i.params.y, i.params.width, i.params.height);
           ctx.fillStyle = 'black';
           ctx.fillText(i.title,i.params.x,i.params.y + 20);
         })
-      }, true)
-
-
+      }, true);
     }
   }
 })

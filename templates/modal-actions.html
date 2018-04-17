@@ -15,14 +15,36 @@
       <div class="col" ng-if="ctrl.current.visualElement">
         <div class="form-group">
           <label>Demo Color: {{ctrl.current.demoColor}}</label>
-          <input class="form-control" color-picker ng-style="{background:ctrl.current.demoColor}" color-picker-model="ctrl.current.demoColor" color-picker-output-format="'hex'" color-picker-position="top" color-picker-fixed-position="false"
-            color-picker-show-cancel-button="false" color-picker-show-value="false"/>
+          <input class="form-control" color-picker ng-style="{background:ctrl.current.demoColor}" color-picker-model="ctrl.current.demoColor" color-picker-output-format="'hex'" color-picker-position="top" color-picker-fixed-position="false" color-picker-show-cancel-button="false"
+            color-picker-show-value="false" />
         </div>
       </div>
     </div>
   </div>
   <hr/>
-  <button type="button" class="btn btn-secondary" ng-show="ctrl.current.new" data-dismiss="modal">Cancel</button>
-  <button type="button" class="btn btn-success" ng-controller="content as contentCtrl" ng-show="ctrl.current.new" ng-click="contentCtrl.addContent($root.activeState(), ctrl.current, ctrl.type); $root.hideModal('#mod-' + ctrl.type)">Save {{ctrl.type | capitalize}}</button>
-  <button type="button" class="btn btn-success" ng-hide="ctrl.current.new" ng-click="$root.hideModal('#mod-' + ctrl.type)">Edit {{ctrl.type | capitalize }}</button>
-</div>
+  <div>
+    <div class="row">
+      <div class="col" ng-hide="ctrl.current.new">
+        <label>You are about to edit:</label>
+        <div class="text-danger">
+          <div ng-repeat="(a,k) in diffs">
+            <span ng-hide="a == 'params'">{{a}}: {{k}}</span>
+          </div>
+          <div ng-repeat="(a,k) in diffs.params">
+            {{a}}: {{k}}
+          </div>
+        </div>
+      </div>
+      <div class="col" ng-hide="ctrl.current.new">
+        <label>Select which states to update:</label>
+        <div ng-repeat="s in hasCopy()">
+          <button class="btn btn-block mb-2" ng-class="editingStates.indexOf(s) != -1 ? 'btn-warning': 'btn-secondary'" ng-click="toggleState(s)">{{s.title}}</button>
+        </div>
+      </div>
+      <div class="col text-right">
+        <button type="button" class="btn btn-secondary mb-2 btn-lg" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success mb-2 btn-lg" ng-hide="ctrl.current.new" ng-click="editWhich()">Edit {{ctrl.type | capitalize }}</button>
+        <button type="button" class="btn btn-success mb-2 btn-lg" ng-controller="content as contentCtrl" ng-show="ctrl.current.new" ng-click="contentCtrl.addContent($root.activeState(), ctrl.current, ctrl.type); $root.hideModal('#mod-' + ctrl.type)">Save {{ctrl.type | capitalize}}</button>
+      </div>
+    </div>
+  </div>

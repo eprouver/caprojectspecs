@@ -109,3 +109,13 @@ div.state-size:after{
 #origin-offset {
   position: relative;
 }
+
+.half-tone {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.nested-half-tone {
+  opacity: 1;
+  pointer-events: auto;
+}

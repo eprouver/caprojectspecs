@@ -22,10 +22,7 @@ app.directive('outputFiles', function($rootScope, $sce) {
       })).uniqBy('id').value();
 
       this.rendererContent = function() {
-        const allVisualContent = _(allContent).filter(c => c.visualElement).map(c => {return {id: c.var, type: c.type}}).keyBy('id');
-
         return {
-          content: JSON.stringify(allVisualContent),
           states: JSON.stringify($scope.content.states.filter(s => !s.baseState).map(s => s.var.toUpperCase())),
         }
       }
@@ -60,34 +57,25 @@ app.directive('outputFiles', function($rootScope, $sce) {
 
         $scope.content.states.filter(s => !s.baseState).forEach(s => {
           const stateConstants = {};
-          const allVisualContent = allContent.filter(c => c.visualElement);
+          getContent(s, 'visualElement', true).forEach(item => {
 
-            allVisualContent.forEach(i => {
-              const item = getContent(s, 'id', i.id)[0];
-
-              if (item) {
-                if (!item.params) {
-                  item.params = {};
-                }
-                if (!item.var) {
-                  item.var = item.type + ' NEEDS VAR'
-                }
-                item.params.visible = true;
-
-                if(item.type === 'text'){
-                  item.params.text = item.title;
-                }
-
-                stateConstants[i.var] = item.params || {};
-              } else {
-                stateConstants[i.var] = {
-                  visible: false
-                };
+              if (!item.params) {
+                item.params = {};
               }
-            });
+              if (!item.var) {
+                item.var = item.type + ' NEEDS VAR'
+              }
+
+              if(item.type === 'text'){
+                item.params.text = item.title;
+              }
+
+              stateConstants[item.var] = item.params || {};
+          });
 
           visualOutput[s.var.toUpperCase()] = stateConstants;
         });
+
 
         _(visualOutput).forEach((s, key) => {
           holder = document.createElement('div');
@@ -107,13 +95,20 @@ app.directive('outputFiles', function($rootScope, $sce) {
         /* Assets */
         holder = document.createElement('div');
         holder.innerHTML = "const ASSETS = {<br/>" + allContent.filter(c => c.type === 'asset').map(c => {
-          return `"${c.var}": ${this.underscoreCode().toUpperCase()}.${c.params.assetName},`;
-        }) + '<br/>};';
+          return `"${c.var}": ${this.underscoreCode().toUpperCase()}.${c.params.assetName}`;
+        }) + ',<br/>};';
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
+
+        /* Base */
+        holder = document.createElement('div')
+        const allVisualContent = JSON.stringify(_(allContent).filter(c => c.visualElement).map(c => {return {id: c.var, type: c.type}}).keyBy('id'));
+        holder.innerHTML = "const BASE_VISUALS = " + allVisualContent + ';';
         dest.appendChild(holder);
         dest.appendChild(document.createElement('br'));
 
         holder = document.createElement('div')
-        holder.innerHTML = 'export { ' + Object.keys(visualOutput).concat(['SFX', 'ASSETS']).join(', ') + ', };';
+        holder.innerHTML = 'export { ' + Object.keys(visualOutput).concat(['SFX', 'ASSETS', 'BASE_VISUALS']).join(', ') + ', };';
         dest.appendChild(holder);
 
         return $sce.trustAsHtml(dest.outerHTML.replace(/"/g, '\''));

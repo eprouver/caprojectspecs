@@ -1,7 +1,7 @@
 <div ng-controller="content as contentCtrl">
   <div class="apps-container" ui-sortable="sortableOptions" ng-model="ngModelItem.items">
     <br ng-show="ngModelItem.canHaveChildren" />
-    <div ng-class="{'border py-1 m-2': item.canHaveChildren, 'border-warning': item.canHaveChildren && item.active, 'border-primary': item.canHaveChildren && !item.active}" class="px-1" ng-repeat="item in ngModelItem.items">
+    <div ng-class="{'border py-1 m-2': item.canHaveChildren, 'half-tone': !ngModelItem.baseState && !item.params.visible && item.visualElement, 'border-warning': item.params.visible && item.canHaveChildren && item.active, 'border-primary': item.canHaveChildren && !item.active}" class="px-1" ng-repeat="item in ngModelItem.items">
 
       <div class="p-1 mb-2 text-light" ng-click="contentCtrl.setActive(item)" ng-style="item.visualElement ? {borderBottom: '3px solid' + item.demoColor} : {}" ng-class="item.active ? 'bg-warning': ( item.visualElement ? 'bg-primary': 'bg-secondary')">
         <div ng-controller="content" class="d-flex justify-content-between">
@@ -10,9 +10,16 @@
           </div>
           <button class="btn btn-link btn-sm text-light ellips" title="Edit {{item.type | capitalize}}" ng-click="$root.$broadcast('load-'+item.type, item)">{{item.title}}</button>
 
-          <button class="btn btn-danger btn-sm" ng-click="removeContent(ngModelItem.items, item)">
+          <div ng-switch="item.visualElement && !ngModelItem.baseState">
+          <button ng-switch-when="false" class="btn btn-danger btn-sm" ng-click="removeContent(ngModelItem, item, ngModelItem.baseState)">
             <i class="fa fa-close"></i>
           </button>
+
+          <div ng-switch-when="true" class="btn btn-sm nested-half-tone" ng-class="item.params.visible ? 'btn-success': 'btn-danger'" ng-click="item.params.visible = !item.params.visible">
+            <i class="fa fa-eye" ng-show="item.params.visible"></i>
+            <i class="fa fa-eye-slash" ng-show="!item.params.visible"></i>
+          </div>
+          </div>
         </div>
       </div>
 
