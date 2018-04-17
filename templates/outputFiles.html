@@ -155,65 +155,175 @@
     </div>
     <div class="card-body">
       <code>
-        import { ACTIONS, SHARED_DEPENDENCIES, GLOBAL } from '@cainc/ifabric';
+        import { ACTIONS, SHARED_DEPENDENCIES, GLOBAL } from '@cainc/ifabric'; /* eslint-disable-line */
+        import { mathAssetUtil } from 'utils/MathAssetUtil';
         import { BaseMathLCRenderer } from '../iFLC/BaseMathLCRenderer';
         import * as CONSTANTS from './constants';
-        import './<span ng-bind="ctrl.upperCode()"></span>sRenderer.less';
+        import './IFLCT1S1sRenderer.less';
 
         const { audioActions } = ACTIONS;
-        const { SFX } = GLOBAL;
-
         const { React, _ } = SHARED_DEPENDENCIES;
-      </code>
 
-      </br></br>
-        // All the visual elements
-        <div>const rendererContent = <span ng-bind="ctrl.rendererContent().content"></span>;</div>
-        <div>const rendererStates = <span ng-bind="ctrl.rendererContent().states"></span>;</div>
-      </br></br>
-
-        repeat each state {
-          change all the visual elements
-
-          put pseudo code for all the non visual elements
-        }
-
-        Create Each State and return the JSX
-
-      </br></br>
-        <code>
+        const makeCanvas = (w, h) => {
+          const c = document.createElement('canvas');
+          c.width = w;
+          c.height = h;
+          return c;
+        };
 
         export default class IFLCT1S1sRenderer extends BaseMathLCRenderer {
           constructor(props, options = {}) {
             super(props);
+
+            const background = mathAssetUtil.getWorkspace(this.props.screen);
+            const canvas = makeCanvas(background._bounds.width, background._bounds.height);
+            const stage = new createjs.Stage(canvas);
+            const b = background;
+            stage.addChild(b);
+            stage.update();
+            this._workspace = &lt;img id="workspace" key="workspace" alt="render obj" src={stage.canvas.toDataURL()} /&gt;;
+
+        <br/><br/>/* All the visual elements */
+          this.rendererContent = <span ng-bind="ctrl.rendererContent().content"></span>;
+          const rendererStates = <span ng-bind="ctrl.rendererContent().states"></span>;
+
+      }
+
+      <br/><br/>
+      _createAsset(props) {
+        const canvas = makeCanvas(props.width, props.height);
+        const stage = new createjs.Stage(canvas);
+        const b = CONSTANTS.ASSETS[this.id]();
+        stage.addChild(b);
+        stage.update();
+
+        const style = {
+          position: 'absolute',
+          transform: `translate3d(${props.x}px, ${props.y}px, 0)`,
+          display: props.visible ? 'block' : 'none',
+        };
+
+        return (
+          &lt;a onClick={this.click} key={`${this.id}-actions`} role="presentation"&gt;
+            &lt;img style={style} id={this.id} key={this.id} alt="render obj" src={stage.canvas.toDataURL()} /&gt;
+          &lt;/a&gt;
+        );
+      }
+
+      <br/><br/>
+      _createShape(props) {
+        const canvas = makeCanvas(props.width, props.height);
+        const stage = new createjs.Stage(canvas);
+
+        const b = new createjs.Shape();
+        b.graphics.setStrokeStyle(10).beginStroke('red').drawCircle(
+          props.width / 2,
+          props.height / 2,
+          Math.min(props.width, props.height) / 2 - 10);
+        stage.addChild(b);
+        stage.update();
+
+        const style = {
+          position: 'absolute',
+          transform: `translate3d(${props.x}px, ${props.y}px, 0)`,
+          display: props.visible ? 'block' : 'none',
+        };
+        return (
+          &lt;a onClick={this.click} key={`${this.id}-actions`} role="presentation"&gt;
+            &lt;img style={style} id={this.id} key={this.id} alt="render obj" src={stage.canvas.toDataURL()} /&gt;
+          &lt;/a&gt;);
+      }
+
+      <br/><br/>
+      _createText(props) {
+        const style = {
+          position: 'absolute',
+          fontSize: `${props.size}px`,
+          fontFamily: props.font,
+          color: props.color,
+          transform: `translate3d(${props.x}px, ${props.y}px, 0)`,
+          display: props.visible ? 'block' : 'none',
+        };
+        return (
+          &lt;a onClick={this.click} key={`${this.id}-actions`} role="presentation"&gt;
+            &lt;div style={style} key={this.id}>{props.text}&lt;/div&gt;
+          &lt;/a&gt;);
+      }
+
+      <br/><br/>
+      _createVisuals() {
+        this.contentMap = {};
+
+        _(this.rendererContent).forEach((c) => {
+          switch (c.type) {
+            case 'asset':
+              this.contentMap[c.id] = this._createAsset.bind(c);
+              break;
+            case 'shape':
+              this.contentMap[c.id] = this._createShape.bind(c);
+              break;
+            case 'text':
+              this.contentMap[c.id] = this._createText.bind(c);
+              break;
+            default:
+              this.contentMap[c.id] = props => &lt;div key={c.name}&gt;Default&lt;/div&gt;;
+              break;
           }
+        });
+      }
 
-          ready() {}
+      <br/><br/>
+      _mapEvents(state, c, id) {
+        c.click = () => { console.log('click'); };
+        return c;
+      }
 
-          render() {
-            return (this.rendererHolder());
-          }
+      <br/><br/>
+      _updateVisuals(state) {
+        return _.chain(this.rendererContent)
+          .forEach((c, i) => this._mapEvents.call(this, state, c, i))
+          .map((c, id) => this.contentMap[id](CONSTANTS[state][id]))
+          .value();
+      }
 
-          onSelect(onComplete) {}
-
-          preTryAgainFeedback(seq) {}
-
-          postTryAgainFeedback(seq) {}
-
-          preCorrectFeedback(seq) {}
-
-          postCorrectFeedback(seq) {}
-
-          preIncorrectFeedback(seq) {}
-
-          postIncorrectFeedback(seq) {}
-
-          postFeedback(seq) {}
-
-          wrapup(seq) {}
-
-          handleDocumentClick(evt) {}
+      <br/><br/>
+      render() {
+        <br/><br/>/* If there is no content visual, create it */
+        if (!this.contentMap) {
+          this._createVisuals();
+          this.content = this._updateVisuals(this.props.screen.title.toUpperCase());
+        } else {
+          <br/><br/>/* This should be updated to whatever state */
+          this.content = this._updateVisuals(this.props.screen.title.toUpperCase());
         }
+
+        return (this.rendererHolder());
+      }
+
+      <br/><br/>
+      ready() {}
+
+      onSelect(onComplete) {}
+
+      preTryAgainFeedback(seq) {}
+
+      postTryAgainFeedback(seq) {}
+
+      preCorrectFeedback(seq) {}
+
+      postCorrectFeedback(seq) {}
+
+      preIncorrectFeedback(seq) {}
+
+      postIncorrectFeedback(seq) {}
+
+      postFeedback(seq) {}
+
+      wrapup(seq) {}
+
+      handleDocumentClick(evt) {}
+
+      }
 
       </code>
     </div>

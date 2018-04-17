@@ -48,6 +48,8 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
     "keyframe": 'fa fa-fw fa-exchange',
   };
 
+  $rootScope.currentView = 'edit';
+
   $rootScope.specData = {
     name: 'New Spec',
     states: [],
@@ -82,6 +84,7 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
 
   $rootScope.inputJSON = function(input) {
     $rootScope.specData = $.parseJSON(input);
+    $rootScope.specData.states.forEach(s => (s.active = false));
   };
 
   $rootScope.hideModal = function(id) {
@@ -102,6 +105,14 @@ app.directive('originOffset', function($rootScope, $window, states) {
   return {
     restrict: 'A',
     link: function(scope, elm, attrs) {
+
+      $rootScope.$watch('currentView', () => {
+        if($rootScope.currentView === 'edit'){
+          _.delay(() => {
+            scope.$digest();
+          })
+        }
+      });
 
       scope.heightRatio = heightRatio;
       scope.widthRatio = widthRatio;
@@ -462,6 +473,13 @@ app.controller('assets', function($scope) {
       title: '',
       type: 'asset',
       new: true,
+      params: {
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+        keyframe: 0,
+      },
       visualElement: true,
       canHaveChildren: true,
     }
@@ -639,6 +657,34 @@ app.controller('copy', function($scope) {
   ctrl.chooseState = (s) => {
     ctrl.current = s;
   }
-
-
 });
+
+app.directive('testCanvas', function(){
+  return {
+    restrict: 'C',
+    scope: {
+      items: '='
+    },
+    link: function(scope, element) {
+      element.attr({
+        width: state.width,
+        height: state.height,
+      });
+
+      scope.$watch('items', () => {
+        var ctx = element[0].getContext("2d");
+        ctx.clearRect(0,0,state.width, state.height);
+        ctx.font = "20px Arial";
+
+        scope.items.filter(i => i.visualElement).forEach(i => {
+          ctx.fillStyle = i.demoColor || 'black';
+          ctx.fillRect(i.params.x, i.params.y, i.params.width, i.params.height);
+          ctx.fillStyle = 'black';
+          ctx.fillText(i.title,i.params.x,i.params.y + 20);
+        })
+      }, true)
+
+
+    }
+  }
+})

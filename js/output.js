@@ -22,13 +22,11 @@ app.directive('outputFiles', function($rootScope, $sce) {
       })).uniqBy('id').value();
 
       this.rendererContent = function() {
-        const allContent = _(getContent({
-          items: Array.prototype.concat.apply([], $scope.content.states.map(s => s.items))
-        })).uniqBy('id').value();
+        const allVisualContent = _(allContent).filter(c => c.visualElement).map(c => {return {id: c.var, type: c.type}}).keyBy('id');
 
         return {
-          // content: allContent.filter(c => c.visualElement).map(c => {return {name: c.var, type: c.type}}),
-          // states: $scope.content.states.filter(s => !s.baseState).map(s => s.var),
+          content: JSON.stringify(allVisualContent),
+          states: JSON.stringify($scope.content.states.filter(s => !s.baseState).map(s => s.var.toUpperCase())),
         }
       }
 
@@ -62,29 +60,31 @@ app.directive('outputFiles', function($rootScope, $sce) {
 
         $scope.content.states.filter(s => !s.baseState).forEach(s => {
           const stateConstants = {};
-          allContent.filter(c => c.visualElement).forEach(c => {
-            const item = getContent(s, 'id', c.id)[0];
+          const allVisualContent = allContent.filter(c => c.visualElement);
 
-            if (item) {
-              if (!item.params) {
-                item.params = {};
-              }
-              if (!item.var) {
-                item.var = item.type + ' NEEDS VAR'
-              }
-              item.params.visible = true;
+            allVisualContent.forEach(i => {
+              const item = getContent(s, 'id', i.id)[0];
 
-              if(item.type === 'text'){
-                item.params.text = c.title;
-              }
+              if (item) {
+                if (!item.params) {
+                  item.params = {};
+                }
+                if (!item.var) {
+                  item.var = item.type + ' NEEDS VAR'
+                }
+                item.params.visible = true;
 
-              stateConstants[item.var] = item.params || {};
-            } else {
-              stateConstants[c.var] = {
-                visible: false
-              };
-            }
-          });
+                if(item.type === 'text'){
+                  item.params.text = item.title;
+                }
+
+                stateConstants[i.var] = item.params || {};
+              } else {
+                stateConstants[i.var] = {
+                  visible: false
+                };
+              }
+            });
 
           visualOutput[s.var.toUpperCase()] = stateConstants;
         });
@@ -104,7 +104,7 @@ app.directive('outputFiles', function($rootScope, $sce) {
         dest.appendChild(holder);
         dest.appendChild(document.createElement('br'));
 
-        debugger;
+        /* Assets */
         holder = document.createElement('div');
         holder.innerHTML = "const ASSETS = {<br/>" + allContent.filter(c => c.type === 'asset').map(c => {
           return `"${c.var}": ${this.underscoreCode().toUpperCase()}.${c.params.assetName},`;
@@ -179,30 +179,10 @@ app.directive('outputFiles', function($rootScope, $sce) {
           }
         };
 
-        const states = $scope.content.states.filter(s => !s.baseState);
-
-        states.forEach((c, i) => {
-          c.index = i;
-        });
-
-        output.info.title = $scope.content.name;
-
-        // Add Navigation
-        ['Instruction', 'Practice', 'Quiz'].forEach(s => {
-          const nav = _(output.navigation).find({
-            name: s
-          });
-          states.filter(c => c['in' + s]).forEach(c => {
-            nav.screens.push({
-              "screen_id": $scope.content.prefix + '-' + c.index
-            });
-          });
-        });
-
-        states.forEach(s => {
+        const addScreen = (id, title) => {
           let screen = {
-            "id": $scope.content.prefix + '-' + s.index,
-            "title": s.var,
+            "id": id,
+            "title": title,
             "vo_character": "Male Narrator",
             "style": {
               "_external": "${content}/shared/styles/" + this.underscoreCode() + "/style.json"
@@ -264,7 +244,39 @@ app.directive('outputFiles', function($rootScope, $sce) {
             "component": 'test',
           };
 
-          output.screens[$scope.content.prefix + '-' + s.index] = screen;
+          output.screens[id] = screen;
+        };
+
+        const states = $scope.content.states.filter(s => !s.baseState);
+
+        states.forEach((c, i) => {
+          c.index = i;
+        });
+
+        output.info.title = $scope.content.name;
+        let nav = _(output.navigation).find({
+          name: 'Instruction',
+        });
+        states.forEach(c => {
+          nav.screens.push({
+            "screen_id": c.var + '-Instruction'
+          });
+
+          addScreen(c.var + '-Instruction', c.var);
+        });
+
+        // Add Navigation
+        ['Practice', 'Quiz'].forEach(s => {
+          let nav = _(output.navigation).find({
+            name: s
+          });
+          states.filter(c => c['in' + s]).forEach(c => {
+            nav.screens.push({
+              "screen_id": c.var + '-' + s
+            });
+
+            addScreen(c.var + '-' + s, c.var);
+          });
         });
 
         return angular.toJson(output, true);

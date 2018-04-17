@@ -14,12 +14,12 @@
     <div class="container-fluid">
       <div class="navbar">
         <div class="nav-item">
-          <button class="btn btn-secondary btn-block" onclick="$('.menu-item').hide(); $('#edit-content').show()">
+          <button class="btn btn-secondary btn-block" ng-click="$root.currentView = 'edit'">
             Edit Spec
           </button>
         </div>
         <div class="nav-item">
-          <button class="btn btn-secondary btn-block" onclick="$('.menu-item').hide(); $('#output-files').show()">
+          <button class="btn btn-secondary btn-block" ng-click="$root.currentView = 'output'">
             Output Files
           </button>
         </div>
@@ -143,8 +143,8 @@
           <br/>
           <br/>
         </div>
-        <output-files content="$root.specData"></output-files>
-        <div id="edit-content" class="menu-item" style="display:none">
+        <output-files content="$root.specData" ng-show="$root.currentView == 'output'"></output-files>
+        <div id="edit-content" class="menu-item" ng-show="$root.currentView == 'edit'">
           <h1 class="text-light">Edit Spec: <ng-pluralize count="$root.specData.states.length - 1" when="{0: 'No States', 1: 'One State', other: '{} States'}"></ng-pluralize></h1>
           <div ng-controller="states as statesCtrl">
             <div class="row" ui-sortable="{distance: 5}" ng-model="$root.specData.states">
@@ -153,7 +153,7 @@
                 <div class="alert alert-primary text-center" ng-switch-when="true">
                   <div class="text-sm mb-2 ellip">Base (Title)</div>
                   <div class="ellip">(Code Var Name)</div>
-                  <canvas class="test-canvas t-card my-2" ng-class="baseState.active ? 'active': ''"></canvas>
+                  <canvas items="baseState.items" class="test-canvas t-card my-2" ng-class="baseState.active ? 'active': ''"></canvas>
                   <div class="ellip">(Located In&hellip;)</div>
                 </div>
 
@@ -166,9 +166,9 @@
                     {{a.var}}
                   </div>
 
-                  <canvas class="test-canvas t-card my-2" ng-class="a.active ? 'active': ''"></canvas>
+                  <canvas items="a.items" class="test-canvas t-card my-2" ng-class="a.active ? 'active': ''"></canvas>
                   <div class="d-flex justify-content-between flex-wrap">
-                    <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inInstruction, 'badge-dark': !a.inInstruction}" ng-click="a.inInstruction = !a.inInstruction">I</button>
+                    <!-- <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inInstruction, 'badge-dark': !a.inInstruction}" ng-click="a.inInstruction = !a.inInstruction">I</button> -->
                     <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inPractice, 'badge-dark': !a.inPractice}" ng-click="a.inPractice = !a.inPractice">P</button>
                     <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inQuiz, 'badge-dark': !a.inQuiz}" ng-click="a.inQuiz = !a.inQuiz">Q</button>
                     <button class="btn btn-danger btn-sm" ng-click="statesCtrl.removeState(a)">
@@ -205,9 +205,9 @@
                 <div class="collapse" id="stateData">
                   <div class="card card-body">
                     <div class="form-group">
-                      <label>Available In</label>
+                      <label>Starts:</label>
                       <div class="row">
-                        <div class="col">
+                        <!-- <div class="col">
                           <div class="form-group">
                             <div class="form-check">
                               <input class="form-check-input" type="checkbox" name="instruction" id="in-Instruction" ng-model="activeState().inInstruction" value="true">
@@ -216,7 +216,7 @@
                               </label>
                             </div>
                           </div>
-                        </div>
+                        </div> -->
                         <div class="col">
                           <div class="form-group">
                             <div class="form-check">
@@ -289,9 +289,9 @@
                   <button class="btn btn-secondary btn-block" title="Settings" data-toggle="modal" data-target="#mod-setting" ng-click="$root.$broadcast('new-setting')">
                     <i ng-class="typeToIcon['setting']"></i>
                   </button>
-                  <button class="btn btn-secondary btn-block" title="Keyframes" data-toggle="modal" data-target="#mod-keyframe" ng-click="$root.$broadcast('new-keyframe')">
+                  <!-- <button class="btn btn-secondary btn-block" title="Keyframes" data-toggle="modal" data-target="#mod-keyframe" ng-click="$root.$broadcast('new-keyframe')">
                     <i ng-class="typeToIcon['keyframe']"></i>
-                  </button>
+                  </button> -->
                   <button class="btn btn-secondary btn-block" title="Animations" data-toggle="modal" data-target="#mod-animation" ng-click="$root.$broadcast('new-animation')">
                     <i ng-class="typeToIcon['animation']"></i>
                   </button>
@@ -538,15 +538,29 @@
                 <div class="modal-body">
                   <div class="form-group">
                     <label>Asset Name:</label>
-                    <input type="text" class="form-control" placeholder="Asset Name" ng-model="ctrl.current.title" />
+                    <input required type="text" class="form-control" placeholder="Asset Name" ng-model="ctrl.current.title" />
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="form-group">
+                        <label>Code Variable Name:</label>
+                        <input required type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="form-group">
+                        <label>Keyframe:</label>
+                        <input required type="number" class="form-control" placeholder="Keyframe" value="0" ng-model="ctrl.current.params.keyframe" />
+                      </div>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label>Code Variable Name:</label>
-                    <input type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
+                    <input required type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
                   </div>
                   <div class="form-group">
                     <label>Expected Name:</label>
-                    <input type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.params.assetName" />
+                    <input required type="text" class="form-control" placeholder="Delivery Name" ng-model="ctrl.current.params.assetName" />
                   </div>
                   <div class="row">
                     <div class="col-6">
@@ -796,7 +810,7 @@
             </div>
           </div>
           <!-- Add Keyframe -->
-          <div id="mod-keyframe" class="modal" tabindex="-1" role="dialog" ng-controller="keyframes as ctrl">
+          <!-- <div id="mod-keyframe" class="modal" tabindex="-1" role="dialog" ng-controller="keyframes as ctrl">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -830,7 +844,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
           <div id="mod-upload" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
