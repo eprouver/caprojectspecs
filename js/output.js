@@ -106,11 +106,17 @@ app.directive('outputFiles', function($rootScope, $sce) {
 
         holder = document.createElement('div');
         holder.innerHTML += 'const STATE_DATA_AND_FUNCTIONS = [';
-        _(visualOutput).forEach((s, key) => {
 
-          holder.innerHTML += `<br/>{ id: '${key}', ` + _(s).map((values, widgetName) => {
-            return `<br/>${widgetName}: {${_(values).map((val, key) => `${key}: ${val}`).join(',<br/>')},<br/> didUpdate: (renderer) => {},<br/> beforeExit: (renderer, callback) => {} }<br/>`;
-          } ) + '},';
+        _(visualOutput).map((s, key) => { var obj = {}; obj[key] = s; return obj}).forEach((s, index, arr) => {
+
+          var stateId = Object.keys(s)[0];
+          var nextState = arr[index+1] ? Object.keys(arr[index+1])[0] : null;
+
+          holder.innerHTML += `{ <br/>id: '${stateId}',` + (nextState ? `<br/>nextState: '${nextState}',` :  '') + _(s[stateId]).map((values, widgetName) => {
+            return `<br/>${widgetName}: {${_(values).map((val, key) => `${key}: ${val}`).join(',<br/>')},<br/> didUpdate: (renderer) => {` +
+              (index == 0 ? 'renderer.goToState(renderer.rendererData.nextState);' : '') +
+              `},<br/> beforeExit: (renderer, callback) => {} }<br/>`;
+          } ) + '}' + (index < arr.length -1 ? ',' : '');
 
         });
         holder.innerHTML += '];';

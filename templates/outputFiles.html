@@ -55,6 +55,10 @@
     <div class="btn btn-primary" ng-class="{'btn-primary': ctrl.rendererType == 'fs', 'btn-secondary': ctrl.rendererType != 'fs' }" ng-click="ctrl.rendererType = 'fs';">
       Freestyle Renderer
     </div>
+
+    <div class="text-white">
+      URL (when finished): <a class="btn btn-link" target="_blank" ng-href="http://localhost:8000/#/demo/{{ctrl.underscoreCode()}}">http://localhost:8000/#/demo/{{ctrl.underscoreCode()}}</a>
+    </div>
   </div>
   <br/>
 
