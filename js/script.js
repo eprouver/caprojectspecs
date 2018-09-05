@@ -88,7 +88,7 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
     "keyframe": 'fa fa-fw fa-exchange',
   };
 
-  $rootScope.currentView = 'edit';
+  $rootScope.currentView = 'output';
 
   $rootScope.getContentNum = (type) => {
     return _(getContent({
@@ -119,6 +119,7 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
     $rootScope.specData.states.push({
       active: true,
       baseState: true,
+      var: 'state_0',
       title: 'Base State',
       items: [],
       active: true,
@@ -415,12 +416,14 @@ app.controller("states", function($scope, $rootScope) {
 app.controller('sounds', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'sound';
+  ctrl.reactComponentType = 'functionalComponent';
 
   const newSound = () => {
     return {
-      source: 'authoring',
+      source: 'style',
       title: '',
-      type: 'sound',
+      type: ctrl.type,
+      reactComponentType: ctrl.reactComponentType,
       new: true,
       var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
@@ -446,11 +449,13 @@ app.controller('sounds', function($scope, $rootScope) {
 app.controller('settings', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'setting';
+  ctrl.reactComponentType = 'functionalComponent';
 
   const newSetting = () => {
     return {
       title: '',
-      type: 'setting',
+      type: ctrl.type,
+      reactComponentType: ctrl.reactComponentType,
       new: true,
       var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
@@ -473,11 +478,13 @@ app.controller('settings', function($scope, $rootScope) {
 app.controller('actions', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'action';
+  ctrl.reactComponentType = 'functionalComponent';
 
   const newAction = () => {
     return {
       title: '',
-      type: 'action',
+      type: ctrl.type,
+      reactComponentType: ctrl.reactComponentType,
       new: true,
       var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
@@ -497,86 +504,20 @@ app.controller('actions', function($scope, $rootScope) {
   });
 });
 
-app.controller('text', function($scope, $rootScope) {
-  const ctrl = this;
-  ctrl.type = 'text';
-
-  const newText = () => {
-    return {
-      title: '',
-      type: 'text',
-      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
-      new: true,
-      visualElement: true,
-      params: {
-        visible: true,
-        x: 0,
-        y: 0,
-        width: 200,
-        height: 100,
-      },
-      canHaveChildren: true,
-    }
-  }
-
-  $scope.$on('new-text', () => {
-    ctrl.current = newText();
-  });
-
-  $scope.$on('load-text', (s, content) => {
-    $('#mod-text').modal('show');
-    content.new = false;
-    ctrl.original = content;
-    ctrl.current = angular.copy(content);
-  });
-});
-
-app.controller('assets', function($scope, $rootScope) {
-  const ctrl = this;
-  ctrl.type = 'asset';
-
-  const newAsset = () => {
-    return {
-      title: '',
-      type: 'asset',
-      new: true,
-      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
-      params: {
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 100,
-        keyframe: 0,
-        visible: true,
-      },
-      visualElement: true,
-      canHaveChildren: true,
-    }
-  }
-
-  $scope.$on('new-asset', () => {
-    ctrl.current = newAsset();
-  });
-
-  $scope.$on('load-asset', (s, content) => {
-    $('#mod-asset').modal('show');
-    content.new = false;
-    ctrl.original = content;
-    ctrl.current = angular.copy(content);
-  });
-});
-
 app.controller('widgets', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'widget';
+  ctrl.reactComponentType = 'functionalComponent';
 
   const newWidget = () => {
     return {
       title: '',
-      type: 'widget',
+      type: ctrl.type,
+      reactComponentType: ctrl.reactComponentType,
       new: true,
       var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: true,
+      source: 'renderer',
       params: {
         visible: true,
         x: 0,
@@ -603,11 +544,13 @@ app.controller('widgets', function($scope, $rootScope) {
 app.controller('containers', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'container';
+  ctrl.reactComponentType = 'functionalComponent';
 
   const newContainer = () => {
     return {
       title: '',
-      type: 'container',
+      type: ctrl.type,
+      reactComponentType: ctrl.reactComponentType,
       new: true,
       var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
@@ -630,11 +573,13 @@ app.controller('containers', function($scope, $rootScope) {
 app.controller('animations', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'animation';
+  ctrl.reactComponentType = 'functionalComponent';
 
   const newContainer = () => {
     return {
       title: '',
-      type: 'animation',
+      type: ctrl.type,
+      reactComponentType: ctrl.reactComponentType,
       new: true,
       var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
@@ -648,94 +593,6 @@ app.controller('animations', function($scope, $rootScope) {
 
   $scope.$on('load-animation', (s, content) => {
     $('#mod-animation').modal('show');
-    content.new = false;
-    ctrl.original = content;
-    ctrl.current = angular.copy(content);
-  });
-});
-
-app.controller('shapes', function($scope, $rootScope) {
-  const ctrl = this;
-  ctrl.type = 'shape';
-
-  const newShape = () => {
-    return {
-      title: '',
-      type: 'shape',
-      new: true,
-      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
-      visualElement: true,
-      params: {
-        x: 0,
-        y: 0,
-        height: 100,
-        width: 100,
-        visible: true,
-      },
-      canHaveChildren: true,
-    }
-  }
-
-  $scope.$on('new-shape', () => {
-    ctrl.current = newShape();
-  });
-
-  $scope.$on('load-shape', (s, content) => {
-    $('#mod-shape').modal('show');
-    content.new = false;
-    ctrl.original = content;
-    ctrl.current = angular.copy(content);
-  });
-});
-
-app.controller('keyframes', function($scope, $rootScope) {
-  const ctrl = this;
-  ctrl.type = 'keyframe';
-
-  const newKeyframe = () => {
-    return {
-      title: '',
-      type: ctrl.type,
-      new: true,
-      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
-      visualElement: false,
-      canHaveChildren: false,
-    }
-  }
-
-  $scope.$on('new-keyframe', () => {
-    ctrl.current = newKeyframe();
-  });
-
-  $scope.$on('load-keyframe', (s, content) => {
-    $('#mod-keyframe').modal('show');
-    content.new = false;
-    ctrl.original = content;
-    ctrl.current = angular.copy(content);
-  });
-});
-
-app.controller('interactions', function($scope, $rootScope) {
-  const ctrl = this;
-  ctrl.type = 'interaction';
-
-  const addInteraction = () => {
-    return {
-      title: '',
-      type: ctrl.type,
-      new: true,
-      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
-      visualElement: false,
-      canHaveChildren: true,
-    }
-  }
-
-  $scope.$on('new-' + ctrl.type, () => {
-    ctrl.current = addInteraction();
-  });
-
-  $scope.$on('load-' + ctrl.type, (s, content) => {
-    $('#mod-' + ctrl.type).modal('show');
     content.new = false;
     ctrl.original = content;
     ctrl.current = angular.copy(content);

@@ -8,6 +8,7 @@ app.directive('outputFiles', function($rootScope, $sce) {
     },
     controller: function($scope) {
       const ctrl = this;
+      ctrl.rendererType = 'fs';
 
       this.upperCode = function() {
         return $scope.content.code.toUpperCase().replace(/-/g,'');
@@ -56,13 +57,29 @@ app.directive('outputFiles', function($rootScope, $sce) {
 
         holder = document.createElement('div');
         holder.innerHTML = allContent.filter(c => c.type === 'widget').map(c => {
-          return `import { ${c.var} } from './widgets/${c.var}';<br/>`;
+          if(c.source == 'global') {
+            return `import { ${c.var} } from '../widgets/${c.var}';<br/>`;
+          }
+          return `import { ${c.var} } from './${c.var}';<br/>`;
+
         }).join('');
         dest.appendChild(holder);
         dest.appendChild(document.createElement('br'));
 
+        /* Starting State is the base state */
+        holder = document.createElement('div');
+        holder.innerHTML = "const STARTING_STATE = 'state_0';";
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
 
-        $scope.content.states.filter(s => !s.baseState).forEach(s => {
+        /* Starting State is the base state */
+        holder = document.createElement('div');
+        holder.innerHTML = "const BEFORE_EACH = _.noop;";
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
+
+        /* STATE_DATA_AND_FUNCTIONS */
+        $scope.content.states.forEach(s => {
           const stateConstants = {};
           getContent(s, 'visualElement', true).forEach(item => {
 
@@ -83,18 +100,30 @@ app.directive('outputFiles', function($rootScope, $sce) {
           visualOutput[s.var.toUpperCase()] = stateConstants;
         });
 
-
+        holder = document.createElement('div');
+        holder.innerHTML += 'const STATE_DATA_AND_FUNCTIONS = [';
         _(visualOutput).forEach((s, key) => {
-          holder = document.createElement('div');
-          holder.innerHTML = "const " + key + " = " + angular.toJson(s, true) + ';';
-          dest.appendChild(holder);
-          dest.appendChild(document.createElement('br'));
+
+          holder.innerHTML += `<br/>{ id: '${key}', ` + _(s).map((values, widgetName) => {
+            return `<br/>${widgetName}: {${_(values).map((val, key) => `${key}: ${val}`).join(',<br/>')},<br/> didUpdate: (renderer) => {},<br/> beforeExit: (renderer, callback) => {} }<br/>`;
+          } ) + '},';
+
         });
+        holder.innerHTML += '];';
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
+
+        /* Base Visuals */
+        holder = document.createElement('div')
+        const allVisualContent = JSON.stringify(_(allContent).filter(c => c.visualElement).map(c => {return {id: c.var, type: c.reactComponentType}}).keyBy('id'));
+        holder.innerHTML = "const BASE_VISUALS = " + allVisualContent + ';';
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
 
         /* Global SFX */
         holder = document.createElement('div');
         holder.innerHTML = "const SFX = {<br/>" + allContent.filter(c => c.type === 'sound').filter(c => c.source === 'global').map(c => {
-          return `"${c.var}": GLOBAL.SFX.${c.delivery},`;
+          return `"${c.var}": GLOBAL.SFX.${c.var},`;
         }) + '<br/>};';
         dest.appendChild(holder);
         dest.appendChild(document.createElement('br'));
@@ -108,22 +137,21 @@ app.directive('outputFiles', function($rootScope, $sce) {
         dest.appendChild(document.createElement('br'));
 
         /* Assets */
+        holder = document.createElement('div')
+        holder.innerHTML = 'const ASSETS = assets;';
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
+
         holder = document.createElement('div');
-        holder.innerHTML = "const ASSETS = {<br/>" + allContent.filter(c => c.type === 'asset').map(c => {
-          return `"${c.var}": ${this.underscoreCode().toUpperCase()}.${c.params.assetName}`;
-        }) + ',<br/>};';
+        holder.innerHTML = "const ASSETS_IDS = {" + allContent.filter(c => c.type === 'asset').map((c,i, arr) => {
+          return `'${c.var}'${i < arr.length-1 ? ' ,': ''}`;
+        }) + '};';
         dest.appendChild(holder);
         dest.appendChild(document.createElement('br'));
 
-        /* Base */
+        /* Exports */
         holder = document.createElement('div')
-        const allVisualContent = JSON.stringify(_(allContent).filter(c => c.visualElement).map(c => {return {id: c.var, type: c.type}}).keyBy('id'));
-        holder.innerHTML = "const BASE_VISUALS = " + allVisualContent + ';';
-        dest.appendChild(holder);
-        dest.appendChild(document.createElement('br'));
-
-        holder = document.createElement('div')
-        holder.innerHTML = 'export { ' + Object.keys(visualOutput).concat(['SFX', 'ASSETS', 'BASE_VISUALS', 'WIDGETS']).join(', ') + ', };';
+        holder.innerHTML = 'export { ' + ['STARTING_STATE', 'BEFORE_EACH', 'STATE_DATA_AND_FUNCTIONS', 'SFX', 'ASSETS', 'ASSETS_IDS', 'BASE_VISUALS', 'WIDGETS'].join(', ') + ', };';
         dest.appendChild(holder);
 
         return $sce.trustAsHtml(dest.outerHTML.replace(/"/g, '\''));
@@ -147,7 +175,7 @@ app.directive('outputFiles', function($rootScope, $sce) {
         })).uniqBy('id').filter(c => c.type == 'asset').value();
 
         assets = assets.map(a => {
-          return `lib.${a.params.assetName} = function () {` +
+          return `lib.${a.var} = function () {` +
           `const b = new createjs.Shape();` +
           `b.graphics.beginFill('${a.demoColor}')` +
           `.drawRect(0, 0, ${a.params.width}, ${a.params.height});` +

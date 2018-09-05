@@ -46,25 +46,37 @@
       <h1>Add Global Settings to create files</h1>
     </div>
   </div>
-  <div ng-if="content.code">
-  <div class="card">
-    <div class="card-header">
-      <h5>Index File: <span class="float-right">src/renderers/{{ctrl.underscoreCode()}}/index.js</span></h5>
+
+  <br/>
+  <div class="d-flex justify-content-around">
+    <div class="btn btn-primary" ng-class="{'btn-primary': ctrl.rendererType == 'canvas', 'btn-secondary': ctrl.rendererType != 'canvas' }" ng-click="ctrl.rendererType = 'canvas';">
+      Canvas Renderer
     </div>
-    <div class="card-body">
-      <code>
+    <div class="btn btn-primary" ng-class="{'btn-primary': ctrl.rendererType == 'fs', 'btn-secondary': ctrl.rendererType != 'fs' }" ng-click="ctrl.rendererType = 'fs';">
+      Freestyle Renderer
+    </div>
+  </div>
+  <br/>
+
+  <div ng-if="content.code">
+    <div class="card" ng-if="ctrl.rendererType == 'canvas'">
+      <div class="card-header">
+        <h5>Index File: <span class="float-right">src/renderers/{{ctrl.underscoreCode()}}/index.js</span></h5>
+      </div>
+      <div class="card-body">
+        <code>
         <div>import <span ng-bind="ctrl.upperCode()"></span>sRenderer from './<span ng-bind="ctrl.upperCode()"></span>sRenderer';</div>
         <br/>
         <div>export const renderer = <span ng-bind="ctrl.upperCode()"></span>sRenderer;</div>
       </code>
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Fake Assets File <span class="float-right">assets/styles/{{ctrl.underscoreCode()}}.js</span></h5>
-    </div>
-    <div class="card-body">
-      <code>
+    <div class="card">
+      <div class="card-header">
+        <h5>Fake Assets File <span class="float-right">assets/styles/{{ctrl.underscoreCode()}}.js</span></h5>
+      </div>
+      <div class="card-body">
+        <code>
         const lib = {};
         <br/><br/>
 
@@ -75,28 +87,28 @@
         module.exports = { <span ng-bind="ctrl.underscoreCode().toUpperCase()"></span>: lib };<br/>
         <br/>
       </code>
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Constants File <span class="float-right">src/renderers/{{ctrl.underscoreCode()}}/constants.js</span></h5>
-    </div>
-    <div class="card-body">
-      <code>
+    <div class="card">
+      <div class="card-header">
+        <h5>Renderer File <span class="float-right">src/renderers/fs_t1/{{content.code}}/renderer.js</span></h5>
+      </div>
+      <div class="card-body">
+        <code>
         <div>import { GLOBAL } from '@cainc/ifabric';</div>
-        <div>import { <span ng-bind="ctrl.underscoreCode().toUpperCase()"></span> } from 'styles/<span ng-bind="ctrl.underscoreCode()"></span>';</div>
+        <div>import { <span ng-bind="ctrl.underscoreCode().toUpperCase()"></span> as assets } from 'styles/<span ng-bind="ctrl.underscoreCode()"></span>';</div>
         <div ng-bind-html="ctrl.constantsFile()"></div>
       </code>
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Fake Style <span class="float-right">
+    <div class="card">
+      <div class="card-header">
+        <h5>Fake Style <span class="float-right">
         <span class="text-info">Charles:</span>
         content/shared/styles/{{ctrl.underscoreCode().toUpperCase()}}/style.json</span></h5>
-    </div>
-    <div class="card-body">
-      <code>
+      </div>
+      <div class="card-body">
+        <code>
         {
           "id": "<span ng-bind="ctrl.underscoreCode()"></span>",
           "type": "style",
@@ -128,240 +140,72 @@
           }
         }
       </code>
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Fake Authoring
+    <div class="card">
+      <div class="card-header">
+        <h5>Fake Authoring
         <span class="float-right">
           <span class="text-info">Charles:</span> content/math/demo/{{ctrl.underscoreCode()}}/{{ctrl.underscoreCode()}}.json</span>
       </h5>
+      </div>
+      <div class="card-body">
+        <code ng-bind="ctrl.authoringFile()">  </code>
+      </div>
     </div>
-    <div class="card-body">
-      <code ng-bind="ctrl.authoringFile()">  </code>
+    <div class="card" ng-if="ctrl.rendererType == 'fs'">
+      <div class="card-header">
+        <h5>FreeStyle Widget Files</h5>
+      </div>
+      <div class="card-body">
+      </div>
+    </div>
+
+    <br/>
+    <div style="display:none">
+      <h2 class="text-warning">Dragons</h2>
+      <br/>
+
+      <div class="card">
+        <div class="card-header">
+          <h5>Unit Test Stubs</h5>
+        </div>
+        <div class="card-body">
+          <p>Some Documentation</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h5>Integration Test Stubs</h5>
+        </div>
+        <div class="card-body">
+          <p>Some Documentation</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h5>Display Stubs</h5>
+        </div>
+        <div class="card-body">
+          <p>Some Documentation</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h5>Orchestrator Stubs</h5>
+        </div>
+        <div class="card-body">
+          <p>Some Documentation</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h5>Raw Spec Tool Data</h5>
+      </div>
+      <div class="card-body">
+        <p class="font-xs" ng-bind="content | json"></p>
+      </div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>iFLC Renderer Stubs</h5>
-    </div>
-    <div class="card-body">
-      <!-- const rendererStates = <span ng-bind="ctrl.rendererContent().states"></span>; -->
-      <!-- this.rendererContent = <span ng-bind="ctrl.rendererContent().content"></span>; -->
-
-      <code>
-        import { ACTIONS, SHARED_DEPENDENCIES, GLOBAL } from '@cainc/ifabric';/* eslint-disable-line */
-        import { mathAssetUtil } from 'utils/MathAssetUtil';
-        import { BaseMathLCRenderer } from '../iFLC/BaseMathLCRenderer';
-        import * as CONSTANTS from './constants';
-        import './IFLCT1S1sRenderer.less';
-
-        const { audioActions } = ACTIONS;
-        const { React, _ } = SHARED_DEPENDENCIES;
-        const makeCanvas = (w, h) => {
-          const c = document.createElement('canvas');
-          c.width = w;
-          c.height = h;
-          return c;
-        };
-
-        const rendererStates = <span ng-bind="ctrl.rendererContent().states"></span>;
-
-        export default class IFLCT1S1sRenderer extends BaseMathLCRenderer {
-          constructor(props, options = {}) {
-            super(props);
-            const background = mathAssetUtil.getWorkspace(this.props.screen);
-            const canvas = makeCanvas(background._bounds.width, background._bounds.height);
-            const stage = new createjs.Stage(canvas);
-            const b = background;
-            stage.addChild(b);
-            stage.update();
-            this._workspace = &lt;img id="workspace" key="workspace" alt="render obj" src={stage.canvas.toDataURL()} /&gt;;
-
-          this.rendererContent = CONSTANTS.BASE_VISUALS;
-
-        }
-
-      </code>
-      <code ng-non-bindable>
-
-
-          _createGenearicType(type) {
-            switch (type) {
-              case 'asset':
-                return function genericAsset(props) {
-                  this.props = props;
-                  const canvas = makeCanvas(this.props.width, this.props.height);
-                  const stage = new createjs.Stage(canvas);
-                  const b = CONSTANTS.ASSETS[this.id]();
-                  stage.addChild(b);
-                  stage.update();
-                  return (&lt;a onClick={this.click} key={`${this.id}-actions`} role="presentation"&gt;
-                    &lt;img
-                      style={{
-                        position: 'absolute',
-                        transform: `translate3d(${this.props.x}px, ${this.props.y}px, 0)`,
-                        opacity: this.props.visible
-                          ? 1
-                          : 0,
-                        pointerEvents: this.props.visible
-                          ? 'auto'
-                          : 'none',
-                      }}
-                      id={this.id}
-                      key={this.id}
-                      alt="render obj"
-                      src={stage.canvas.toDataURL()} /&gt;
-                  &lt;/a&gt;);
-                };
-              case 'shape':
-                return function genericShape(props) {
-                  this.props = props;
-                  const canvas = makeCanvas(this.props.width, this.props.height);
-                  const stage = new createjs.Stage(canvas);
-                  const b = new createjs.Shape();
-                  b.graphics.setStrokeStyle(10).beginStroke('red').drawCircle(this.props.width / 2, this.props.height / 2, Math.min(this.props.width, this.props.height) / 2 - 10);
-                  stage.addChild(b);
-                  stage.update();
-                  return (&lt;a onClick={this.click} key={`${this.id}-actions`} role="presentation"&gt;
-                    &lt;img
-                      style={{
-                        position: 'absolute',
-                        transform: `translate3d(${this.props.x}px, ${this.props.y}px, 0)`,
-                        opacity: this.props.visible
-                          ? 1
-                          : 0,
-                        pointerEvents: this.props.visible
-                          ? 'auto'
-                          : 'none',
-                      }}
-                      id={this.id}
-                      key={this.id}
-                      alt="render obj"
-                      src={stage.canvas.toDataURL()} /&gt;
-                  &lt;/a&gt;);
-                };
-              case 'text':
-                return function genericText(props) {
-                  this.props = props;
-                  return (&lt;a onClick={this.click} key={`${this.id}-actions`} role="presentation"&gt;
-                    &lt;div
-                      style={{
-                        position: 'absolute',
-                        fontSize: `${this.props.size}px`,
-                        fontFamily: this.props.font,
-                        color: this.props.color,
-                        transformOrigin: '0 0',
-                        transform: `translate3d(${this.props.x}px, ${this.props.y}px, 0)`,
-                        opacity: this.props.visible
-                          ? 1
-                          : 0,
-                        pointerEvents: this.props.visible
-                          ? 'auto'
-                          : 'none',
-                      }}
-                      key={this.id}&gt;{this.props.text}&lt;/div&gt;
-                  &lt;/a&gt;);
-                };
-              default:
-                return function genericDefault(props) { return (&lt;div key={this.id}&gt;Default&lt;/div&gt;); };
-            }
-          }
-
-          _createVisuals() {
-            this.contentMap = {};
-            _(this.rendererContent).forEach((c) =&gt; {
-              this.contentMap[c.id] = this._createGenearicType(c.type).bind(c); /* Replace with specifics */
-            });
-          }
-          _mapEvents(state, c, id) {
-            c.click = () =&gt; {
-              this._updateVisuals(rendererStates[~~(rendererStates.length * Math.random())]);
-            };
-            return c;
-          }
-          _updateVisuals(state) {
-            this.setState({ visuals: CONSTANTS[state] });
-          }
-          render() {
-            return (this.rendererHolder());
-          }
-          componentWillUpdate(nextProps, nextState) {
-            this.content = _(this.contentMap).map((c, id) =&gt; c(nextState.visuals[id])).value();
-          }
-          ready() {
-            const state = this.props.screen.title.toUpperCase();
-            _(this.rendererContent).forEach((c, i) =&gt; this._mapEvents.call(this, state, c, i));
-            this._createVisuals();
-            this.setState({ visuals: CONSTANTS[state] });
-          }
-          onSelect(onComplete) {}
-          preTryAgainFeedback(seq) {}
-          postTryAgainFeedback(seq) {}
-          preCorrectFeedback(seq) {}
-          postCorrectFeedback(seq) {}
-          preIncorrectFeedback(seq) {}
-          postIncorrectFeedback(seq) {}
-          postFeedback(seq) {}
-          wrapup(seq) {}
-          handleDocumentClick(evt) {}
-        }
-
-      </code>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>LESS File <span class="float-right">assets/styles/{{ctrl.underscoreCode()}}.less</span></h5>
-    </div>
-    <div class="card-body">
-
-    </div>
-  </div>
-
-  <br/>
-  <h2 class="text-warning">Dragons</h2>
-  <br/>
-
-  <div class="card">
-    <div class="card-header">
-      <h5>Unit Test Stubs</h5>
-    </div>
-    <div class="card-body">
-      <p>Some Documentation</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Integration Test Stubs</h5>
-    </div>
-    <div class="card-body">
-      <p>Some Documentation</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Display Stubs</h5>
-    </div>
-    <div class="card-body">
-      <p>Some Documentation</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Orchestrator Stubs</h5>
-    </div>
-    <div class="card-body">
-      <p>Some Documentation</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <h5>Raw Spec Tool Data</h5>
-    </div>
-    <div class="card-body">
-      <p class="font-xs" ng-bind="content | json"></p>
-    </div>
-  </div>
-</div>
 </div>
