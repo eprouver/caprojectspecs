@@ -72,7 +72,7 @@ const updateRecur = (id, items, property, value) => {
   });
 };
 
-var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorage', 'colorpicker']).run(($rootScope, $localStorage, $timeout) => {
+var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorage', 'colorpicker', 'hljs']).run(($rootScope, $localStorage, $timeout) => {
   $rootScope.typeToIcon = {
     "workspace": "fa fa-fw fa-window-maximize",
     "text": "fa fa-fw fa-font",

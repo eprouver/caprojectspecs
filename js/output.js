@@ -24,6 +24,10 @@ app.directive('outputFiles', function($rootScope, $sce) {
         }
       }
 
+      this.rendererWidgets = function() {
+        return getContent($scope.content.states[0], 'visualElement', true).filter(w => w.type == 'widget');
+      }
+
       this.getFirstItems = function(id, type) {
         let content = getContent({
           items: Array.prototype.concat.apply([], $scope.content.states.map(s => s.items))
@@ -157,22 +161,10 @@ app.directive('outputFiles', function($rootScope, $sce) {
         return $sce.trustAsHtml(dest.outerHTML.replace(/"/g, '\''));
       }
 
-      this.skinFile = function() {
-
-      }
-
-      this.unitTests = function() {
-
-      }
-
-      this.integrationTests = function() {
-
-      }
-
       this.assetsFile = function() {
         let assets = _(getContent({
           items: Array.prototype.concat.apply([], $scope.content.states.map(s => s.items))
-        })).uniqBy('id').filter(c => c.type == 'asset').value();
+        })).uniqBy('id').filter(c => c.type == 'widget').value();
 
         assets = assets.map(a => {
           return `lib.${a.var} = function () {` +
@@ -188,148 +180,42 @@ app.directive('outputFiles', function($rootScope, $sce) {
 
       this.authoringFile = function() {
         const output = {
-          info: {
-            lesson_id: 'Not a Lesson',
+          "info": {
+            "title": $scope.content.code,
+            "domain": "Sample FreeStyle"
           },
-          navigation: [{
-              "name": "Instruction",
-              "screens": []
-            },
-            {
-              "name": "Practice",
-              "screens": []
-            },
-            {
-              "name": "Quiz",
-              "screens": []
-            }
-          ],
-          screens: {},
+          "navigation": [{
+            "name": "Instruction",
+            "screens": [{
+              "screen_id": $scope.content.code
+            }]
+          }],
+          "screens": {},
+          "adaptivity_decision_points": [],
           "author_info": {
-            "export_date": "",
-            "lesson_revision": "0",
-            "modified_date": "",
-            "author_email": "dev specs tool",
-            "author_name": "dev specs tool"
-          },
-          "export_info": {
-            "authoring_env": "dev specs tool",
+            "export_date": "2018-09-04 18:19:18 America/New_York",
+            "author_email": "sample@cainc.com",
+            "author_name": "No Author"
           }
-        };
+        }
 
-        const addScreen = (id, title) => {
-          let screen = {
-            "id": id,
-            "title": title,
-            "vo_character": "Male Narrator",
-            "style": {
-              "_external": "${content}/shared/styles/" + this.underscoreCode() + "/style.json"
-            },
-            "workspace": "TEAL_GRADIENT",
-            "workspace_color": "",
-
-            "display_audio_buttons": false,
-            "item_intro": {
-              "id": "math-dynamic-content-39730",
-              "type": "math-dynamic-content"
-            },
-            "direction_line": {
-              "id": "math-dynamic-content-39731",
-              "sequence": [{
-                "id": "audio-95587",
-                "type": "audio",
-                "parts": [{
-                  "src": "https://qa-authoring.i-ready.com/export/audio/audio_95587_586831807aeaea19cef9fa1962848748.mp3",
-                  "alt": "Which three cards have equal values?",
-                  "npc": "male narrator"
-                }]
-              }],
-              "type": "math-dynamic-content"
-            },
-            "play_direction_line": true,
-            "call_to_action": {
-              "id": "math-dynamic-content-39732",
-              "type": "math-dynamic-content"
-            },
-            "feedback": {
-              "id": "math-attempt-feedback-4308",
-              "max_number_of_attempts": 1,
-              "correct_feedback": {
-                "id": "math-dynamic-content-39733",
-                "type": "math-dynamic-content"
-              },
-              "final_incorrect_feedback": {
-                "id": "math-dynamic-content-39734",
-                "type": "math-dynamic-content"
-              },
-              "type": "math-attempt-feedback"
-            },
-            "final_interaction": {
-              "id": "final-interaction-no-feedback-378",
-              "is_enabled": false,
-              "direction_line": {
-                "id": "math-dynamic-content-39735",
-                "type": "math-dynamic-content"
-              },
-              "type": "final-interaction-no-feedback"
-            },
-            "item_wrapup": {
-              "id": "math-dynamic-content-39736",
-              "type": "math-dynamic-content"
-            },
-            "type": $scope.content.prefix,
-            "properties": {},
-            "component": 'test',
-          };
-
-          output.screens[id] = screen;
-        };
-
-        const states = $scope.content.states.filter(s => !s.baseState);
-
-        states.forEach((c, i) => {
-          c.index = i;
-        });
-
-        output.info.title = $scope.content.name;
-        let nav = _(output.navigation).find({
-          name: 'Instruction',
-        });
-        states.forEach(c => {
-          nav.screens.push({
-            "screen_id": c.var + '-Instruction'
-          });
-
-          addScreen(c.var + '-Instruction', c.var);
-        });
-
-        // Add Navigation
-        ['Practice', 'Quiz'].forEach(s => {
-          let nav = _(output.navigation).find({
-            name: s
-          });
-          states.filter(c => c['in' + s]).forEach(c => {
-            nav.screens.push({
-              "screen_id": c.var + '-' + s
-            });
-
-            addScreen(c.var + '-' + s, c.var);
-          });
-        });
+        output.screens[$scope.content.code] = {
+          "id": $scope.content.code,
+          "title": $scope.content.code,
+          "style": {
+            "_external": `\${content}/shared/styles/${this.underscoreCode()}/style.json`
+          },
+          "file": {
+            "src": "${content}/shared/global/animations/magical_door_entry_07_undefined.js",
+            "id": "id-X66F7XhrCMjzcxUQ",
+            "type": "animation"
+          },
+          "type": "fs-t1",
+          "properties": {},
+          "component": "Instruction"
+        }
 
         return angular.toJson(output, true);
-      }
-
-      this.displayFile = function() {
-
-      }
-
-      this.orchestratorFile = function() {
-
-      }
-
-      this.iflcRenderer = function() {
-
       }
 
     }

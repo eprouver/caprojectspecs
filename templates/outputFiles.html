@@ -49,9 +49,9 @@
 
   <br/>
   <div class="d-flex justify-content-around">
-    <div class="btn btn-primary" ng-class="{'btn-primary': ctrl.rendererType == 'canvas', 'btn-secondary': ctrl.rendererType != 'canvas' }" ng-click="ctrl.rendererType = 'canvas';">
+    <!-- <div class="btn btn-primary" ng-class="{'btn-primary': ctrl.rendererType == 'canvas', 'btn-secondary': ctrl.rendererType != 'canvas' }" ng-click="ctrl.rendererType = 'canvas';">
       Canvas Renderer
-    </div>
+    </div> -->
     <div class="btn btn-primary" ng-class="{'btn-primary': ctrl.rendererType == 'fs', 'btn-secondary': ctrl.rendererType != 'fs' }" ng-click="ctrl.rendererType = 'fs';">
       Freestyle Renderer
     </div>
@@ -109,36 +109,14 @@
       </div>
       <div class="card-body">
         <code>
-        {
-          "id": "<span ng-bind="ctrl.underscoreCode()"></span>",
-          "type": "style",
-          "help": {
-            "type": "audio",
-            "parts": [{
-              "src": "${content}/shared/global/audio/help.mp3"
+          {
+            "id": "fs_t1",
+            "type": "style",
+            "module": "FSLearningAdapter",
+            "rendererData": [{
+              "id": "state_0"
             }]
-          },
-          "feedback": {
-            "correct": {
-              "type": "audio",
-              "parts": [{
-                "src": "${content}/shared/global/audio/default-correct.mp3"
-              }]
-            },
-            "tryagain": {
-              "type": "audio",
-              "parts": [{
-                "src": "${content}/shared/global/audio/default-tryagain.mp3"
-              }]
-            },
-            "incorrect": {
-              "type": "audio",
-              "parts": [{
-                "src": "${content}/shared/global/audio/default-incorrect.mp3"
-              }]
-            }
           }
-        }
       </code>
       </div>
     </div>
@@ -153,11 +131,69 @@
         <code ng-bind="ctrl.authoringFile()">  </code>
       </div>
     </div>
-    <div class="card" ng-if="ctrl.rendererType == 'fs'">
+    <div class="card" ng-if="ctrl.rendererType == 'fs'" ng-repeat="w in ctrl.rendererWidgets()" ng-switch="w.reactComponentType" ng-hide="w.source == 'global'">
       <div class="card-header">
-        <h5>FreeStyle Widget Files</h5>
+        <h5>{{w.title}} <span class="float-right">src/renderers/fs_t1/{{content.code}}/{{w.var}}.js</span></h5>
       </div>
-      <div class="card-body">
+      <div class="card-body" ng-switch-when="classInstance">
+        <code>
+          <div>import { assets } from 'renderer';</div>
+          export class {{w.var}} extends React.Component { <br/>
+          static get propTypes() { <br/>
+            return { <br/>
+              width: PropTypes.number, <br/>
+              height: PropTypes.number, <br/>
+              x: PropTypes.number, <br/>
+              y: PropTypes.number, <br/>
+              visible: PropTypes.bool, <br/>
+              classList: PropTypes.arrayOf(PropTypes.string), <br/>
+              parent: PropTypes.object, // eslint-disable-line react/forbid-prop-types <br/>
+            }; <br/>
+          } <br/>
+
+          render() { <br/>
+            return (&lt;div <br/>
+              className="widget"<br/>
+              style={{ <br/>
+                width: props.width,
+                height: props.height,
+                display: this.props.visible ? 'block' : 'none', <br/>
+                transform: `translate3d(${this.props.x}px, ${this.props.y}px, 0)` }} <br/>
+              ref={({{w.var}}) => { this.{{w.var}} = {{w.var}}; }}&gt; <br/>
+              &lt;img src={assets.{{w.var}}} alt="placeholder-image" /&gt; <br/>
+              &lt;/div&gt;); <br/>
+          } <br/>
+        } <br/>
+      </code>
+      </div>
+      <div class="card-body" ng-switch-when="functionalComponent">
+        <code>
+          <div>import { assets } from 'renderer';</div>
+          export const {{w.var}} = function {{w.var}}(props, renderer) { <br/>
+          return (&lt;div <br/>
+          id="w.var" <br/>
+          key="{{w.var}}" <br/>
+          className={`widget ${props.classList.join(' ')}`} <br/>
+          style={{ <br/>
+            width: props.width, <br/>
+            height: props.height, <br/>
+            display: this.props.visible ? 'block' : 'none', <br/>
+            transform: `translate3d(${props.x}px, ${props.y}px, 0) scale(${props.scale})`, <br/>
+          }} &gt; <br/>
+          &lt;img src={assets.{{w.var}}} alt="placeholder-image" /&gt; <br/>
+          &lt;/div&gt;); <br/>
+          }<br/>
+
+          {{w.var}}.propTypes = { <br/>
+            width: PropTypes.number, <br/>
+            height: PropTypes.number, <br/>
+            x: PropTypes.number, <br/>
+            y: PropTypes.number, <br/>
+            visible: PropTypes.number, <br/>
+            scale: PropTypes.number, <br/>
+            classList: PropTypes.arrayOf(PropTypes.string), <br/>
+          }; <br/>
+        </code>
       </div>
     </div>
 
