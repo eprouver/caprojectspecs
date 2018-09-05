@@ -90,10 +90,24 @@ var app = angular.module("app", ['tg.dynamicDirective', 'ui.sortable', 'ngStorag
 
   $rootScope.currentView = 'edit';
 
+  $rootScope.getContentNum = (type) => {
+    return _(getContent({
+      items: Array.prototype.concat.apply([], $rootScope.specData.states.map(s => s.items))
+    })).uniqBy('id').filter(s => s.type === type).value().length;
+  }
+
   $rootScope.specData = {
     name: 'New Spec',
     states: [],
+    originOffsetX: 0,
+    originOffsetY: 0,
   };
+
+  $rootScope.delayDigest = () => {
+    _.delay(() => {
+      $rootScope.$digest();
+    });
+  }
 
   $rootScope.$watch('specData', function(n,o,scope){
     $localStorage.specData = n;
@@ -238,8 +252,8 @@ app.directive('myDraggable', function($rootScope, $window, states) {
           if (states.length > 1 && $rootScope.activeState().baseState && confirm(`Update width & height in all instances of ${scope.item.title}?`)) {
 
             states.forEach(s => {
-              updateParamsRecur(scope.item.id, s, 'width', newWidth);
-              updateParamsRecur(scope.item.id, s, 'height', newHeight);
+              updateParamsRecur(scope.item.id, s.items, 'width', newWidth);
+              updateParamsRecur(scope.item.id, s.items, 'height', newHeight);
             })
           } else {
             scope.item.params.width = newWidth;
@@ -286,11 +300,11 @@ app.controller('content', function($scope, $rootScope, states) {
     if (state.baseState) {
       content.baseObject = false;
       states.forEach(s => {
-        s.items.unshift(angular.copy(content));
+        s.items.push(angular.copy(content));
       });
     } else {
       content.baseObject = true;
-      state.items.unshift(content);
+      state.items.push(content);
     }
   };
 
@@ -366,8 +380,10 @@ app.controller("states", function($scope, $rootScope) {
     const newGuy = angular.copy($scope.baseState);
     newGuy.baseState = false;
     newGuy.title = 'New State';
+    newGuy.var = `new_state_${_.uniqueId()}`;
     newGuy.active = false;
     $rootScope.specData.states.push(newGuy);
+    ctrl.selectState(newGuy);
   };
 
   ctrl.copyState = function(state) {
@@ -380,7 +396,7 @@ app.controller("states", function($scope, $rootScope) {
     if(confirm(`Remove ${state.title}?`)){
       $rootScope.specData.states.splice($rootScope.specData.states.indexOf(state), 1);
       if (!_($rootScope.specData.states).some(s => s.active)) {
-        $rootScope.specData.states[0].active = true;
+        ctrl.selectState($rootScope.specData.states[0]);
       }
     }
   };
@@ -396,7 +412,7 @@ app.controller("states", function($scope, $rootScope) {
   });
 });
 
-app.controller('sounds', function($scope) {
+app.controller('sounds', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'sound';
 
@@ -406,6 +422,7 @@ app.controller('sounds', function($scope) {
       title: '',
       type: 'sound',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       params: {
         visible: true,
@@ -426,7 +443,7 @@ app.controller('sounds', function($scope) {
   });
 });
 
-app.controller('settings', function($scope) {
+app.controller('settings', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'setting';
 
@@ -435,6 +452,7 @@ app.controller('settings', function($scope) {
       title: '',
       type: 'setting',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       canHaveChildren: false,
     }
@@ -452,7 +470,7 @@ app.controller('settings', function($scope) {
   });
 });
 
-app.controller('actions', function($scope) {
+app.controller('actions', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'action';
 
@@ -461,6 +479,7 @@ app.controller('actions', function($scope) {
       title: '',
       type: 'action',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       canHaveChildren: true,
     }
@@ -478,7 +497,7 @@ app.controller('actions', function($scope) {
   });
 });
 
-app.controller('text', function($scope) {
+app.controller('text', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'text';
 
@@ -486,10 +505,15 @@ app.controller('text', function($scope) {
     return {
       title: '',
       type: 'text',
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       new: true,
       visualElement: true,
       params: {
         visible: true,
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 100,
       },
       canHaveChildren: true,
     }
@@ -507,7 +531,7 @@ app.controller('text', function($scope) {
   });
 });
 
-app.controller('assets', function($scope) {
+app.controller('assets', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'asset';
 
@@ -516,17 +540,16 @@ app.controller('assets', function($scope) {
       title: '',
       type: 'asset',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       params: {
         x: 0,
         y: 0,
         width: 100,
         height: 100,
         keyframe: 0,
-      },
-      visualElement: true,
-      params: {
         visible: true,
       },
+      visualElement: true,
       canHaveChildren: true,
     }
   }
@@ -543,7 +566,7 @@ app.controller('assets', function($scope) {
   });
 });
 
-app.controller('widgets', function($scope) {
+app.controller('widgets', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'widget';
 
@@ -552,9 +575,14 @@ app.controller('widgets', function($scope) {
       title: '',
       type: 'widget',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: true,
       params: {
         visible: true,
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
       },
       canHaveChildren: true,
     }
@@ -572,7 +600,7 @@ app.controller('widgets', function($scope) {
   });
 });
 
-app.controller('containers', function($scope) {
+app.controller('containers', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'container';
 
@@ -581,6 +609,7 @@ app.controller('containers', function($scope) {
       title: '',
       type: 'container',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       canHaveChildren: true,
     }
@@ -598,7 +627,7 @@ app.controller('containers', function($scope) {
   });
 });
 
-app.controller('animations', function($scope) {
+app.controller('animations', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'animation';
 
@@ -607,6 +636,7 @@ app.controller('animations', function($scope) {
       title: '',
       type: 'animation',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       canHaveChildren: false,
     }
@@ -624,7 +654,7 @@ app.controller('animations', function($scope) {
   });
 });
 
-app.controller('shapes', function($scope) {
+app.controller('shapes', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'shape';
 
@@ -633,8 +663,13 @@ app.controller('shapes', function($scope) {
       title: '',
       type: 'shape',
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: true,
       params: {
+        x: 0,
+        y: 0,
+        height: 100,
+        width: 100,
         visible: true,
       },
       canHaveChildren: true,
@@ -653,7 +688,7 @@ app.controller('shapes', function($scope) {
   });
 });
 
-app.controller('keyframes', function($scope) {
+app.controller('keyframes', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'keyframe';
 
@@ -662,6 +697,7 @@ app.controller('keyframes', function($scope) {
       title: '',
       type: ctrl.type,
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       canHaveChildren: false,
     }
@@ -679,7 +715,7 @@ app.controller('keyframes', function($scope) {
   });
 });
 
-app.controller('interactions', function($scope) {
+app.controller('interactions', function($scope, $rootScope) {
   const ctrl = this;
   ctrl.type = 'interaction';
 
@@ -688,6 +724,7 @@ app.controller('interactions', function($scope) {
       title: '',
       type: ctrl.type,
       new: true,
+      var: ctrl.type + '_' + $rootScope.getContentNum(ctrl.type),
       visualElement: false,
       canHaveChildren: true,
     }
@@ -717,7 +754,7 @@ app.controller('copy', function($scope) {
   }
 });
 
-app.directive('testCanvas', function(){
+app.directive('testCanvas', function($rootScope){
   return {
     restrict: 'C',
     scope: {
@@ -729,18 +766,22 @@ app.directive('testCanvas', function(){
         height: state.height,
       });
 
-      scope.$watch('items', () => {
+      const render = () => {
         var ctx = element[0].getContext("2d");
         ctx.clearRect(0,0,state.width, state.height);
         ctx.font = "20px Arial";
 
         scope.items.filter(i => i.visualElement && i.params.visible).forEach(i => {
           ctx.fillStyle = i.demoColor || 'black';
-          ctx.fillRect(i.params.x, i.params.y, i.params.width, i.params.height);
+          ctx.fillRect(i.params.x - $rootScope.specData.originOffsetX, i.params.y - $rootScope.specData.originOffsetY, i.params.width, i.params.height);
           ctx.fillStyle = 'black';
-          ctx.fillText(i.title,i.params.x,i.params.y + 20);
+          ctx.fillText(i.title,i.params.x - $rootScope.specData.originOffsetX,i.params.y - $rootScope.specData.originOffsetY + 20);
         })
-      }, true);
+      };
+
+      scope.$watch('items', render, true);
+      scope.$watch('$root.specData.originOffsetX', render);
+      scope.$watch('$root.specData.originOffsetY', render);
     }
   }
 })

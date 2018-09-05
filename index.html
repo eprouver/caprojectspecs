@@ -12,15 +12,25 @@
 <body>
   <div id="app-holder" ng-app="app" ng-cloak style="display:none">
     <div class="container-fluid">
-      <div class="navbar">
-        <div class="nav-item">
+      <div class="d-flex justify-content-between">
+        <div class="p-2">
           <button class="btn btn-secondary btn-block" ng-click="$root.currentView = 'edit'">
             Edit Spec
           </button>
         </div>
-        <div class="nav-item">
+        <div class="p-2">
+          <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#rendererData" aria-expanded="false" aria-controls="collapseExample">
+            Global Settings
+          </button>
+        </div>
+        <div class="p-2 animated slideInDown" ng-if="$root.specData.states.length > 1">
           <button class="btn btn-secondary btn-block" ng-click="$root.currentView = 'output'">
             Output Files
+          </button>
+        </div>
+        <div class="p-2 animated slideInDown" ng-if="$root.specData.states.length > 1">
+          <button class="btn btn-secondary btn-block" ng-click="$root.currentView = 'freestyle'">
+            FreeStyle Files
           </button>
         </div>
         <!-- <div class="nav-item">
@@ -33,12 +43,7 @@
             Rendered Slideshow
           </button>
         </div> -->
-        <div class="nav-item">
-          <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#rendererData" aria-expanded="false" aria-controls="collapseExample">
-            Global Settings
-          </button>
-        </div>
-        <div class="nav-item">
+        <div class="p-2">
           <button class="btn btn-secondary btn-block" onclick="$('#mod-upload').modal('show')">
             Paste Data
           </button>
@@ -46,7 +51,6 @@
       </div>
       <div>
         <div class="collapse" id="rendererData">
-          <h3 class="text-light">Global Settings</h3>
           <div class="card card-body bg-light">
             <div class="row">
               <div class="col">
@@ -54,20 +58,6 @@
                 <div class="form-group">
                   <label>Renderer Name:</label>
                   <input type="text" class="form-control" placeholder="Renderer Name" ng-model="$root.specData.name" />
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="form-group">
-                      <label>Origin Offset X:</label>
-                      <input type="text" class="form-control" placeholder="Origin Offset X" ng-model="$root.specData.originOffsetX" />
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="form-group">
-                      <label>Origin Offset Y:</label>
-                      <input type="text" class="form-control" placeholder="Origin Offset Y" ng-model="$root.specData.originOffsetY" />
-                    </div>
-                  </div>
                 </div>
                 <label>Renderer Tech</label>
                 <div class="row">
@@ -99,6 +89,20 @@
                 <div class="form-group">
                   <label>Code:</label>
                   <input type="text" class="form-control" placeholder="ex. tpp-t1-s1" ng-model="$root.specData.code" />
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Origin Offset X:</label>
+                      <input type="text" class="form-control" placeholder="Origin Offset X" ng-model="$root.specData.originOffsetX" />
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Origin Offset Y:</label>
+                      <input type="text" class="form-control" placeholder="Origin Offset Y" ng-model="$root.specData.originOffsetY" />
+                    </div>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>Confluence Link:</label>
@@ -144,17 +148,26 @@
           <br/>
         </div>
         <output-files content="$root.specData" ng-show="$root.currentView == 'output'"></output-files>
-        <div id="edit-content" class="menu-item" ng-show="$root.currentView == 'edit'">
-          <h1 class="text-light">Edit Spec: <ng-pluralize count="$root.specData.states.length - 1" when="{0: 'No States', 1: 'One State', other: '{} States'}"></ng-pluralize></h1>
-          <div ng-controller="states as statesCtrl">
+        <freestyle-files content="$root.specData" ng-show="$root.currentView == 'freestyle'"></freestyle-files>
+        <div id="edit-content" class="menu-item mb-5" ng-show="$root.currentView == 'edit'">
+          <br/>
+          <h1 class="text-light">
+            <ng-pluralize count="$root.specData.states.length - 1" when="{0: 'Add Visual Items Below', 1: 'One State', other: '{} States'}"></ng-pluralize>
+            <button ng-if="$root.activeState().items.length" ng-controller="states as statesCtrl" class="btn btn-success btn-lg pull-right animated slideInRight" title="Add Screen" ng-click="statesCtrl.addState()">
+              <i class="fa fa-plus"></i>&nbsp;
+              Add New State
+            </button>
+          </h1>
+          <br/>
+          <div ng-controller="states as statesCtrl" class="animated fadeIn" ng-if="$root.activeState().items.length || $root.specData.states.length > 1">
             <div class="row" ui-sortable="{distance: 5}" ng-model="$root.specData.states">
               <div class="col-2" ng-repeat="(i,a) in $root.specData.states" ng-switch="a.baseState" ng-click="statesCtrl.selectState(a)">
 
                 <div class="alert alert-primary text-center" ng-switch-when="true">
-                  <div class="text-sm mb-2 ellip">Base (Title)</div>
-                  <div class="ellip">(Code Var Name)</div>
+                  <div class="text-sm mb-2 ellip">Base</div>
+                  <div class="ellip">&nbsp;</div>
                   <canvas items="baseState.items" class="test-canvas t-card my-2" ng-class="baseState.active ? 'active': ''"></canvas>
-                  <div class="ellip">(Located In&hellip;)</div>
+                  <div class="ellip">&nbsp;</div>
                 </div>
 
                 <div class="alert alert-dark" ng-switch-when="false">
@@ -163,25 +176,20 @@
                   </button>
                   <div class="text-dark ellip mb-2">{{a.title}}</div>
                   <div class="text-muted">
-                    {{a.var}}
+                    {{a.var}}&nbsp;
                   </div>
 
                   <canvas items="a.items" class="test-canvas t-card my-2" ng-class="a.active ? 'active': ''"></canvas>
-                  <div class="d-flex justify-content-between flex-wrap">
+                  <div class="d-flex justify-content-end flex-wrap">
                     <!-- <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inInstruction, 'badge-dark': !a.inInstruction}" ng-click="a.inInstruction = !a.inInstruction">I</button> -->
-                    <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inPractice, 'badge-dark': !a.inPractice}" ng-click="a.inPractice = !a.inPractice">P</button>
-                    <button type="button" class="btn badge badge-pill" ng-class="{'badge-light': a.inQuiz, 'badge-dark': !a.inQuiz}" ng-click="a.inQuiz = !a.inQuiz">Q</button>
+                    <!-- <button type="button" title="This is the start of a practice problem" class="btn badge badge-pill" ng-class="{'badge-light': a.inPractice, 'badge-dark': !a.inPractice}" ng-click="a.inPractice = !a.inPractice">P</button>
+                    <button type="button" title="This is the start of a quiz problem" class="btn badge badge-pill" ng-class="{'badge-light': a.inQuiz, 'badge-dark': !a.inQuiz}" ng-click="a.inQuiz = !a.inQuiz">Q</button> -->
                     <button class="btn btn-danger btn-sm" ng-click="statesCtrl.removeState(a)">
                       <i class="fa fa-close"></i>
                     </button>
                   </div>
 
                 </div>
-              </div>
-              <div class="col-1">
-                <button class="btn btn-success btn-block" title="Add Screen" ng-click="statesCtrl.addState()">
-                  <i class="fa fa-plus fa-3x"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -192,9 +200,9 @@
                 &nbsp;
               </div>
               <div class="col-8 text-center">
-                <div class="input-group mb-3">
-                  <input class="form-control text-center" ng-disabled="activeState().baseState" type="text" ng-model="activeState().title" placeholder="Name" />
-                  <input class="form-control text-center" ng-disabled="activeState().baseState" type="text" ng-model="activeState().var" placeholder="State Variable" />
+                <div class="input-group mb-3" ng-if="!activeState().baseState">
+                  <input class="form-control text-center" type="text" ng-model="activeState().title" placeholder="Name" />
+                  <input class="form-control text-center" type="text" ng-model="activeState().var" placeholder="Code Variable Name" />
 
                   <div class="input-group-append">
                     <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#stateData" aria-expanded="false" aria-controls="collapseExample">
@@ -204,10 +212,10 @@
                 </div>
                 <div class="collapse" id="stateData">
                   <div class="card card-body">
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                       <label>Starts:</label>
                       <div class="row">
-                        <!-- <div class="col">
+                        <div class="col">
                           <div class="form-group">
                             <div class="form-check">
                               <input class="form-check-input" type="checkbox" name="instruction" id="in-Instruction" ng-model="activeState().inInstruction" value="true">
@@ -216,7 +224,7 @@
                               </label>
                             </div>
                           </div>
-                        </div> -->
+                        </div>
                         <div class="col">
                           <div class="form-group">
                             <div class="form-check">
@@ -238,7 +246,7 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> -->
                     <div class="form-group">
                       <label for="state-notes">Notes</label>
                       <textarea class="form-control" id="state-notes" placeholder="Notes" ng-model="activeState().notes">
@@ -310,14 +318,14 @@
               <div class="col-8">
                 <ul class="nav nav-justified nav-tabs" id="myTab" role="tablist">
                   <li class="nav-item">
-                    <span class="nav-link active text-primary" id="place-tab" data-toggle="tab" role="tab" aria-controls="place" aria-selected="true">Place</span>
+                    <a class="nav-link active text-primary" ng-click="$root.delayDigest()" data-target="#place" id="place-tab" data-toggle="tab" role="tab" aria-controls="place" aria-selected="true">Place</a>
                   </li>
                   <li class="nav-item">
-                    <span class="nav-link text-primary" id="render-tab" data-toggle="tab" role="tab" aria-controls="render" aria-selected="false">Render</span>
+                    <a class="nav-link text-primary" data-target="#render" id="render-tab" data-toggle="tab" role="tab" aria-controls="render" aria-selected="false">Render</a>
                   </li>
                 </ul>
                 <div class="tab-content bg-white" id="myTabContent" ng-controller="content as contentCtrl">
-                  <div class="tab-pane fade show active" id="place" role="tabpanel" aria-labelledby="place-tab">
+                  <div class="tab-pane show active" id="place" role="tabpanel" aria-labelledby="place-tab">
                     <div id="place-canvas" class="state-size">
                       <div id="origin-offset" origin-offset ng-style="{top: getTop(), left: getLeft()}">
                         <i class="fa fa-crosshairs text-muted" aria-hidden="true"></i>
@@ -332,8 +340,8 @@
                       </div>
                     </div>
                   </div>
-                  <div class="tab-pane fade" id="render" role="tabpanel" aria-labelledby="render-tab">
-                    <canvas id="render-canvas" class="state-size" width="1250" height="937">
+                  <div class="tab-pane" id="render" role="tabpanel" aria-labelledby="render-tab">
+                    <canvas id="render-canvas" items="$root.activeState().items" class="test-canvas state-size">
                     </canvas>
                   </div>
                 </div>
@@ -349,9 +357,6 @@
             </div>
           </div>
 
-          <div id="output">
-
-          </div>
         </div>
         <!-- Add Workspace -->
         <div id="modals" ng-controller="content">
@@ -393,6 +398,28 @@
                   <div class="form-group">
                     <label>Variable Name:</label>
                     <input type="text" class="form-control" placeholder="Variable Name" ng-model="ctrl.current.var" />
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label>Position X:</label>
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.x" />
+                      </div>
+                      <div class="form-group">
+                        <label>Position Y:</label>
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.y" />
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label>Width:</label>
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.width" />
+                      </div>
+                      <div class="form-group">
+                        <label>Height:</label>
+                        <input type="number" class="form-control" ng-model="ctrl.current.params.height" />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -680,6 +707,10 @@
                     <input type="text" class="form-control" placeholder="Widget Name" ng-model="ctrl.current.title" />
                   </div>
                   <div class="form-group">
+                    <label>Code Variable Name:</label>
+                    <input type="text" class="form-control" placeholder="Code Variable Name" ng-model="ctrl.current.var" />
+                  </div>
+                  <div class="form-group">
                     <label>Source:</label>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="authoring" id="authoring-audio" ng-model="ctrl.current.source" value="authoring" checked>
@@ -693,10 +724,6 @@
                       Renderer Specific
                     </label>
                     </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Variable Name:</label>
-                    <input type="text" class="form-control" placeholder="Container Name" ng-model="ctrl.current.var" />
                   </div>
                   <div class="row">
                     <div class="col-6">

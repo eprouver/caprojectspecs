@@ -17,10 +17,6 @@ app.directive('outputFiles', function($rootScope, $sce) {
         return $scope.content.code.replace(/-/g,'_');
       }
 
-      const allContent = _(getContent({
-        items: Array.prototype.concat.apply([], $scope.content.states.map(s => s.items))
-      })).uniqBy('id').value();
-
       this.rendererContent = function() {
         return {
           states: JSON.stringify($scope.content.states.filter(s => !s.baseState).map(s => s.var.toUpperCase())),
@@ -50,10 +46,21 @@ app.directive('outputFiles', function($rootScope, $sce) {
       }
 
       this.constantsFile = function() {
+        const allContent = _(getContent({
+          items: Array.prototype.concat.apply([], $scope.content.states.map(s => s.items))
+        })).uniqBy('id').value();
 
         const dest = document.createElement('div');
         let visualOutput = {};
         let holder;
+
+        holder = document.createElement('div');
+        holder.innerHTML = allContent.filter(c => c.type === 'widget').map(c => {
+          return `import { ${c.var} } from './widgets/${c.var}';<br/>`;
+        }).join('');
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
+
 
         $scope.content.states.filter(s => !s.baseState).forEach(s => {
           const stateConstants = {};
@@ -92,6 +99,14 @@ app.directive('outputFiles', function($rootScope, $sce) {
         dest.appendChild(holder);
         dest.appendChild(document.createElement('br'));
 
+        /* Widgets */
+        holder = document.createElement('div');
+        holder.innerHTML = "const WIDGETS = {<br/>" + allContent.filter(c => c.type === 'widget').map(c => {
+          return `${c.var}`;
+        }) + ',<br/>};';
+        dest.appendChild(holder);
+        dest.appendChild(document.createElement('br'));
+
         /* Assets */
         holder = document.createElement('div');
         holder.innerHTML = "const ASSETS = {<br/>" + allContent.filter(c => c.type === 'asset').map(c => {
@@ -108,7 +123,7 @@ app.directive('outputFiles', function($rootScope, $sce) {
         dest.appendChild(document.createElement('br'));
 
         holder = document.createElement('div')
-        holder.innerHTML = 'export { ' + Object.keys(visualOutput).concat(['SFX', 'ASSETS', 'BASE_VISUALS']).join(', ') + ', };';
+        holder.innerHTML = 'export { ' + Object.keys(visualOutput).concat(['SFX', 'ASSETS', 'BASE_VISUALS', 'WIDGETS']).join(', ') + ', };';
         dest.appendChild(holder);
 
         return $sce.trustAsHtml(dest.outerHTML.replace(/"/g, '\''));

@@ -30,7 +30,6 @@ app.directive('modalActions', function($rootScope, $sce, states) {
           return false;
         }
         $scope.diffs = getDiff($scope.ctrl.current, $scope.ctrl.original);
-        console.log($scope.diffs);
       }
 
       $scope.editingStates = [];

@@ -68,7 +68,7 @@ div.state-size{
 div.state-size:after{
 	content: "";
 	display: block;
-	padding-top: 74.96%; 	/* initial ratio of 1:1*/
+	padding-top: 68.16%; 	/* initial ratio of 1:1*/
 }
 
 .draggable {
@@ -107,7 +107,7 @@ div.state-size:after{
 }
 
 #origin-offset {
-  position: relative;
+  position: absolute;
 }
 
 .half-tone {

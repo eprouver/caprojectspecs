@@ -41,6 +41,12 @@
       </table>
     </div>
   </div>
+  <div ng-if="!content.code">
+    <div class="alert alert-danger">
+      <h1>Add Global Settings to create files</h1>
+    </div>
+  </div>
+  <div ng-if="content.code">
   <div class="card">
     <div class="card-header">
       <h5>Index File: <span class="float-right">src/renderers/{{ctrl.underscoreCode()}}/index.js</span></h5>
@@ -79,7 +85,6 @@
       <code>
         <div>import { GLOBAL } from '@cainc/ifabric';</div>
         <div>import { <span ng-bind="ctrl.underscoreCode().toUpperCase()"></span> } from 'styles/<span ng-bind="ctrl.underscoreCode()"></span>';</div>
-        <br/>
         <div ng-bind-html="ctrl.constantsFile()"></div>
       </code>
     </div>
@@ -277,7 +282,6 @@
           }
           _updateVisuals(state) {
             this.setState({ visuals: CONSTANTS[state] });
-            this.forceUpdate();
           }
           render() {
             return (this.rendererHolder());
@@ -304,6 +308,14 @@
         }
 
       </code>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h5>LESS File <span class="float-right">assets/styles/{{ctrl.underscoreCode()}}.less</span></h5>
+    </div>
+    <div class="card-body">
+
     </div>
   </div>
 
@@ -351,4 +363,5 @@
       <p class="font-xs" ng-bind="content | json"></p>
     </div>
   </div>
+</div>
 </div>
